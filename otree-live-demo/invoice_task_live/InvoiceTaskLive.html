@@ -1,0 +1,91 @@
+{{ block title }}
+    Invoice Matching Task (Live)
+{{ endblock }}
+
+{{ block content }}
+
+<invoice-matching-task
+    task-duration="120"
+    start-difficulty="1"
+    max-submissions="20"
+    log-level="basic">
+</invoice-matching-task>
+
+<div id="live-metrics" style="max-width: 320px; margin-top: 8px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+    <strong>Live metrics</strong>
+    <table style="width: 100%; margin-top: 6px;">
+        <tr><td>Rounds submitted</td><td style="text-align:right"><span id="m-num-rounds">0</span></td></tr>
+        <tr><td>Correct</td><td style="text-align:right"><span id="m-num-correct">0</span></td></tr>
+        <tr><td>Accuracy</td><td style="text-align:right"><span id="m-accuracy">–</span></td></tr>
+        <tr><td>Mean reaction time</td><td style="text-align:right"><span id="m-mean-rt">–</span></td></tr>
+        <tr><td>Median reaction time</td><td style="text-align:right"><span id="m-median-rt">–</span></td></tr>
+        <tr><td>Best streak</td><td style="text-align:right"><span id="m-best-streak">0</span></td></tr>
+        <tr><td>Max difficulty reached</td><td style="text-align:right"><span id="m-max-difficulty">–</span></td></tr>
+    </table>
+</div>
+
+<div style="display:none">{{ next_button }}</div>
+
+<script src="{{ static 'invoice_task_live/invoice-matching-task.js' }}"></script>
+<script>
+  window.addEventListener('load', () => {
+    const task = document.querySelector('invoice-matching-task');
+    let started = false;
+    let pendingEvents = [];
+
+    function updateMetricsPanel(m) {
+      document.querySelector('#m-num-rounds').textContent = m.numRounds;
+      document.querySelector('#m-num-correct').textContent = m.numCorrect;
+      document.querySelector('#m-accuracy').textContent =
+        m.numRounds > 0 ? Math.round(m.accuracy * 100) + '%' : '–';
+      document.querySelector('#m-mean-rt').textContent =
+        m.meanReactionTimeMs != null ? Math.round(m.meanReactionTimeMs) + ' ms' : '–';
+      document.querySelector('#m-median-rt').textContent =
+        m.medianReactionTimeMs != null ? Math.round(m.medianReactionTimeMs) + ' ms' : '–';
+      document.querySelector('#m-best-streak').textContent = m.bestStreak;
+      document.querySelector('#m-max-difficulty').textContent = m.maxDifficultyReached;
+    }
+
+    window.liveRecv = function (response) {
+      if (!response) return;
+      if (response.metrics) {
+        updateMetricsPanel(response.metrics);
+      }
+      if (response.done) {
+        document.querySelector('.otree-btn-next')?.click();
+      }
+    };
+
+    function flushPendingEvents() {
+      if (liveSocket.readyState !== WebSocket.OPEN) return;
+      while (pendingEvents.length > 0) {
+        liveSend({ event: pendingEvents.shift() });
+      }
+    }
+    liveSocket.addEventListener('open', flushPendingEvents);
+
+    task.addEventListener('invoiceTaskEvent', (event) => {
+      if (event.detail.eventType === 'taskStarted') {
+        started = true;
+      }
+      if (liveSocket.readyState === WebSocket.OPEN) {
+        liveSend({ event: event.detail });
+      } else {
+        pendingEvents.push(event.detail);
+      }
+    });
+
+    function tryAutoStart(attempt) {
+      if (started) return;
+      if (typeof task.start === 'function') {
+        task.start();
+      }
+      if (attempt < 100) {
+        setTimeout(() => tryAutoStart(attempt + 1), 100);
+      }
+    }
+    customElements.whenDefined('invoice-matching-task').then(() => tryAutoStart(0));
+  });
+</script>
+
+{{ endblock }}

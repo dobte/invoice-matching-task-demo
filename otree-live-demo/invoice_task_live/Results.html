@@ -1,0 +1,49 @@
+{{ block title }}
+    Results
+{{ endblock }}
+
+{{ block content }}
+
+<table class="table table-sm table-bordered" style="max-width: 420px;">
+    <tbody>
+        <tr><th>Rounds submitted</th><td>{{ metrics.num_rounds }}</td></tr>
+        <tr><th>Correct</th><td>{{ metrics.num_correct }}</td></tr>
+        <tr>
+            <th>Accuracy</th>
+            <td>{{ if metrics.accuracy_pct != None }}{{ metrics.accuracy_pct }}%{{ else }}–{{ endif }}</td>
+        </tr>
+        <tr>
+            <th>Mean reaction time</th>
+            <td>{{ if metrics.mean_reaction_time_ms != None }}{{ metrics.mean_reaction_time_ms }} ms{{ else }}–{{ endif }}</td>
+        </tr>
+        <tr>
+            <th>Median reaction time</th>
+            <td>{{ if metrics.median_reaction_time_ms != None }}{{ metrics.median_reaction_time_ms }} ms{{ else }}–{{ endif }}</td>
+        </tr>
+        <tr><th>Best streak</th><td>{{ metrics.best_streak }}</td></tr>
+        <tr><th>Max difficulty reached</th><td>{{ metrics.max_difficulty_reached }}</td></tr>
+    </tbody>
+</table>
+
+<table class="table table-sm table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>eventType</th>
+            <th>detail</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ for row in rows }}
+        <tr>
+            <td>{{ row.idx }}</td>
+            <td>{{ row.type }}</td>
+            <td><code style="font-size: 11px">{{ row.json }}</code></td>
+        </tr>
+        {{ endfor }}
+    </tbody>
+</table>
+
+{{ next_button }}
+
+{{ endblock }}

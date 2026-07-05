@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Matching Task — Configurator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <!-- Bundle loaded synchronously so the custom element is defined before the inline script runs. -->
+  <script src="./invoice-matching-task.js"></script>
+  <style>
+    :root {
+      --paper: #f0f2f5;
+      --ink: #1d1c1a;
+      --muted: #6f6a61;
+      --line: #e0e0e0;
+      --card: #ffffff;
+      --brand: #111111;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding: 32px 20px 80px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-weight: 600;
+      font-size: 41px;
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      margin-bottom: 6px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* ---- Configurator layout ---- */
+    .config-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 22px;
+      align-items: start;
+      margin-top: 32px;
+    }
+
+    @media(max-width:880px) {
+      .config-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    #event-log-panel {
+      max-width: 640px;
+    }
+
+    .panel-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-head h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .panel-head .ic {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
+
+    .panel-body {
+      padding: 6px 18px 16px;
+    }
+
+    .group {
+      padding: 14px 0;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .group:last-child {
+      border-bottom: none;
+    }
+
+    .group > .glabel {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .group > .glabel:hover {
+      color: var(--ink);
+    }
+
+    .chevron {
+      font-size: 10px;
+      transition: transform 0.2s ease;
+      flex: none;
+    }
+
+    .group--open > .glabel .chevron {
+      transform: rotate(90deg);
+    }
+
+    .group-body {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+
+    .group--open > .group-body {
+      max-height: 1200px;
+      padding-top: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 9px 0;
+      font-size: 14.5px;
+    }
+
+    .row label:not(.sw) {
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .row .hint {
+      display: block;
+      color: var(--muted);
+      font-size: 12.5px;
+      margin-top: 1px;
+    }
+
+    /* toggle */
+    .sw {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex: none;
+      cursor: pointer;
+    }
+
+    .sw input {
+      display: none;
+    }
+
+    .sw span {
+      position: absolute;
+      inset: 0;
+      background: #cfc9bd;
+      border-radius: 20px;
+      transition: .2s;
+    }
+
+    .sw span:before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: .2s;
+    }
+
+    .sw input:checked + span {
+      background: var(--brand);
+    }
+
+    .sw input:checked + span:before {
+      transform: translateX(18px);
+    }
+
+    select,
+    input[type='number'] {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf7;
+      color: var(--ink);
+      width: 96px;
+    }
+
+    input[type='number'] {
+      width: 64px;
+    }
+
+    input[type='text'] {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf7;
+      color: var(--ink);
+      width: 120px;
+    }
+
+    input[type='color'] {
+      width: 36px;
+      height: 28px;
+      padding: 2px 3px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf7;
+      cursor: pointer;
+    }
+
+    .seg {
+      display: flex;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+    }
+
+    .seg button {
+      appearance: none;
+      border: none;
+      background: #fbfaf7;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 5px 10px;
+      color: var(--muted);
+    }
+
+    .seg button.on {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .disabled-soft {
+      opacity: .4;
+      pointer-events: none;
+      transition: .2s;
+    }
+
+    .mute-checks {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .mute-checks label {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .mute-checks input[type='checkbox'] {
+      width: 13px;
+      height: 13px;
+      flex: none;
+      cursor: pointer;
+      accent-color: var(--brand);
+    }
+
+    .ev-hint {
+      width: 100%;
+      margin-left: 20px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .code-tabs {
+      display: flex;
+      gap: 1px;
+      margin-top: 8px;
+      align-items: flex-end;
+    }
+
+    .tab-btn {
+      appearance: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      padding: 5px 14px;
+      border: 1px solid var(--line);
+      border-bottom: none;
+      border-radius: 7px 7px 0 0;
+      background: #f0f2f5;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tab-btn.on {
+      background: #181a1a;
+      color: #d6e8e6;
+      border-color: #181a1a;
+    }
+
+    .substyle-btn {
+      appearance: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-bottom: none;
+      border-radius: 5px 5px 0 0;
+      background: #f0f2f5;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .substyle-btn.on {
+      background: #3a3d3d;
+      color: #d6e8e6;
+      border-color: #3a3d3d;
+    }
+
+    #downloadIndexBtn,
+    #downloadLiveHtmlBtn {
+      margin-left: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf7;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    #downloadIndexBtn:hover,
+    #downloadLiveHtmlBtn:hover {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    /* preview + code */
+    .preview-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .preview-block {
+      position: relative;
+    }
+
+    .preview-block > .pv-head {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -20px;
+      margin-bottom: 0;
+    }
+
+    .preview-block > #livePreview {
+      margin-top: 0;
+    }
+
+    .pv-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      max-width: 640px;
+    }
+
+    .pv-head .t {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .pv-head .badge {
+      font-size: 12px;
+      background: #eee;
+      color: var(--muted);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .code {
+      background: #181a1a;
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative;
+    }
+
+    .code pre {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13.3px;
+      line-height: 1.7;
+      color: #d6e8e6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .code .k {
+      color: #7fc9c3;
+    }
+
+    .code .a {
+      color: #e0b86a;
+    }
+
+    .code .v {
+      color: #c5d96b;
+    }
+
+    .code .c {
+      color: #6b7472;
+      font-style: italic;
+    }
+
+    .copy {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      background: #2a2d2d;
+      color: #9fb3b1;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 9px;
+      cursor: pointer;
+    }
+
+    .copy:hover {
+      background: #343838;
+    }
+
+    invoice-matching-task {
+      display: block;
+    }
+
+    #lifecycle-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      max-width: 640px;
+    }
+
+    .lc-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      padding: 5px 12px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf7;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+
+    .lc-btn:hover:not(:disabled) {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .lc-btn:disabled {
+      opacity: .35;
+      cursor: default;
+    }
+
+    /* ---- Event log ---- */
+    #event-log-body {
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .ev-row {
+      border-bottom: 1px dashed var(--line);
+      margin: 0;
+    }
+
+    .ev-row:last-child {
+      border-bottom: none;
+    }
+
+    .ev-row > summary {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      padding: 5px 18px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ev-row > summary::-webkit-details-marker { display: none; }
+
+    .ev-row > summary::before {
+      content: '▶';
+      font-size: 9px;
+      color: var(--muted);
+      flex: none;
+      transition: transform .15s;
+    }
+
+    .ev-row[open] > summary::before { transform: rotate(90deg); }
+
+    .ev-detail {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.55;
+      padding: 4px 18px 10px 34px;
+      background: var(--paper);
+      color: var(--muted);
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+    }
+
+    .ev-correct > summary { color: #16a34a; }
+    .ev-wrong   > summary { color: #dc2626; }
+    .ev-error   > summary { color: #dc2626; font-weight: 600; }
+    .ev-finish  > summary { color: var(--muted); font-style: italic; }
+
+    .val-msg {
+      display: none;
+      font-size: 12.5px;
+      color: #92400e;
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 4px 4px 0;
+      padding: 4px 8px;
+      margin: -4px 0 6px;
+      line-height: 1.4;
+    }
+
+    .val-msg.visible {
+      display: block;
+    }
+
+    /* ---- Top-level tab bar ---- */
+    .top-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--line);
+      margin-top: 24px;
+    }
+
+    .top-tab {
+      padding: 10px 22px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: color 0.15s;
+    }
+
+    .top-tab.on {
+      color: var(--ink);
+      border-bottom-color: var(--brand);
+    }
+
+    .top-tab:hover {
+      color: var(--ink);
+    }
+
+    .lv-wrap {
+      margin-top: 28px;
+    }
+
+    /* ---- Log viewer ---- */
+    #log-viewer-input {
+      width: 100%;
+      height: 72px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf7;
+      color: var(--ink);
+      resize: vertical;
+    }
+
+    #log-viewer-body {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    #log-viewer-error {
+      display: none;
+      font-size: 13px;
+      color: #92400e;
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 4px 4px 0;
+      padding: 6px 10px;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    #log-viewer-error.visible {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Invoice Matching Task</h1>
+      <p class="sub">Configure &amp; preview the task · copy generated code · analyse event logs in Log Viewer.</p>
+    </header>
+
+    <nav class="top-tabs" role="tablist">
+      <button class="top-tab on" id="toptab-configure" role="tab" aria-selected="true" aria-controls="panel-configure">Configure</button>
+      <button class="top-tab" id="toptab-gencode" role="tab" aria-selected="false" aria-controls="panel-gencode">Generated Code</button>
+      <button class="top-tab" id="toptab-logviewer" role="tab" aria-selected="false" aria-controls="panel-logviewer">Log Viewer</button>
+    </nav>
+
+    <div id="panel-configure" role="tabpanel" aria-labelledby="toptab-configure">
+    <div class="config-grid">
+
+      <!-- ---- Left: controls ---- -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="ic"></span>
+          <h3>Configuration</h3>
+        </div>
+        <div class="panel-body" id="ctrls">
+
+          <div class="group group--open">
+            <button class="glabel" aria-expanded="true">Difficulty <span class="chevron" aria-hidden="true">▶</span></button>
+            <div class="group-body">
+            <div class="row">
+              <label>Adaptive difficulty<span class="hint">performance-based level up/down</span></label>
+              <label class="sw"><input type="checkbox" id="c_flow" checked><span></span></label>
+            </div>
+            <div class="row">
+              <label>Start difficulty<span class="hint">↺ restarts preview</span></label>
+              <select id="c_startlvl">
+                <option>1</option><option>2</option><option>3</option>
+                <option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+            <div class="val-msg" id="val_startlvl" role="alert"></div>
+            <div class="row">
+              <label>Min difficulty<span class="hint">↺ restarts preview</span></label>
+              <select id="c_minlvl">
+                <option selected>1</option><option>2</option><option>3</option>
+                <option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+            <div class="val-msg" id="val_minlvl" role="alert"></div>
+            <div class="row">
+              <label>Max difficulty<span class="hint">↺ restarts preview</span></label>
+              <select id="c_maxlvl">
+                <option>1</option><option>2</option><option selected>3</option>
+                <option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+            <div class="val-msg" id="val_maxlvl" role="alert"></div>
+            <div class="row" id="wrap_thr">
+              <label>Level up / down after</label>
+              <span>
+                <input type="number" id="c_up" value="4" min="1" max="20" style="width:48px"> /
+                <input type="number" id="c_down" value="4" min="1" max="20" style="width:48px">
+              </span>
+            </div>
+            <div class="row">
+              <label>Show difficulty<span class="hint">participant-facing level indicator</span></label>
+              <label class="sw"><input type="checkbox" id="c_lvl"><span></span></label>
+            </div>
+            </div>
+          </div>
+
+          <div class="group group--open">
+            <button class="glabel" aria-expanded="true">Feedback <span class="chevron" aria-hidden="true">▶</span></button>
+            <div class="group-body">
+            <div class="row">
+              <label>Show answer feedback<span class="hint">correct → green / wrong → red</span></label>
+              <label class="sw"><input type="checkbox" id="c_fb" checked><span></span></label>
+            </div>
+            </div>
+          </div>
+
+          <div class="group group--open">
+            <button class="glabel" aria-expanded="true">Timing <span class="chevron" aria-hidden="true">▶</span></button>
+            <div class="group-body">
+            <div class="row">
+              <label>Show timer</label>
+              <label class="sw"><input type="checkbox" id="c_tl" checked><span></span></label>
+            </div>
+            <div class="row">
+              <label>Task duration (seconds)<span class="hint">↺ restarts preview · 0 = no limit</span></label>
+              <input type="number" id="c_totaltl_min" value="300" min="0" max="3600">
+            </div>
+            <div class="row">
+              <label>Enable round timer<span class="hint">↺ restarts preview</span></label>
+              <label class="sw"><input type="checkbox" id="c_round_timer"><span></span></label>
+            </div>
+            <div class="row" id="wrap_round_duration">
+              <label>Round duration (seconds)<span class="hint">↺ restarts preview</span></label>
+              <input type="number" id="c_round_duration" value="30" min="1" max="600">
+            </div>
+            </div>
+          </div>
+
+          <div class="group group--open">
+            <button class="glabel" aria-expanded="true">Task volume <span class="chevron" aria-hidden="true">▶</span></button>
+            <div class="group-body">
+            <div class="row">
+              <label>End after N submissions<span class="hint">0 = no limit</span></label>
+              <input type="number" id="c_max" value="20" min="0" max="200">
+            </div>
+            <div class="row">
+              <label>End after N correct<span class="hint">0 = no limit</span></label>
+              <input type="number" id="c_maxcorrect" value="0" min="0" max="200">
+            </div>
+            <div class="row">
+              <label>Invoices per round<span class="hint">↺ restarts preview</span></label>
+              <input type="number" id="c_perround" value="8" min="3" max="12">
+            </div>
+            <div class="row">
+              <label>Invoice order<span class="hint">↺ restarts preview</span></label>
+              <div class="seg" id="seg_order">
+                <button data-v="random" class="on">Random</button>
+                <button data-v="fixed">Fixed</button>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <button class="glabel" aria-expanded="false">Session <span class="chevron" aria-hidden="true">▶</span></button>
+            <div class="group-body">
+            <div class="row">
+              <label>Auto-start<span class="hint">adds auto-start to the snippet only · live preview unaffected</span></label>
+              <label class="sw"><input type="checkbox" id="c_autostart"><span></span></label>
+            </div>
+            <div class="row">
+              <label>Session ID<span class="hint">echoed on every event</span></label>
+              <input type="text" id="c_sessionid" placeholder="(none)" autocomplete="off">
+            </div>
+            <div class="row" id="wrap_seed">
+              <label>Random seed<span class="hint">↺ restarts preview · fixed order only</span></label>
+              <input type="text" id="c_seed" placeholder="(none)" autocomplete="off">
+            </div>
+            <div class="row" style="flex-direction:column;align-items:flex-start;gap:4px;margin-bottom:4px">
+              <label style="flex:none">Completed message<span class="hint">plain text shown at task end</span></label>
+              <input type="text" id="c_completedmsg"
+                placeholder="You have completed all invoice matching tasks."
+                style="width:100%">
+            </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <button class="glabel" aria-expanded="false">Logging <span class="chevron" aria-hidden="true">▶</span></button>
+            <div class="group-body">
+            <div class="row">
+              <label>Log level</label>
+              <div class="seg" id="seg_loglevel">
+                <button data-v="basic" class="on">basic</button>
+                <button data-v="detailed">detailed</button>
+                <button data-v="debug">debug</button>
+              </div>
+            </div>
+            <div class="row" style="align-items:flex-start">
+              <label>Mute events<span class="hint">suppress from log</span></label>
+              <div class="mute-checks" id="muted_checks">
+                <label><input type="checkbox" data-ev="roundStarted"> roundStarted<span class="ev-hint">targetAmount · visibleInvoices · correctInvoiceIds</span></label>
+                <label><input type="checkbox" data-ev="selectionChanged"> selectionChanged<span class="ev-hint">invoiceId · isChecked · currentSum · roundRelativeTimeMs</span></label>
+                <label><input type="checkbox" data-ev="roundSubmitted"> roundSubmitted<span class="ev-hint">isCorrect · reactionTimeMs · selectedInvoiceIds · timedOut</span></label>
+                <label><input type="checkbox" data-ev="difficultyChanged"> difficultyChanged<span class="ev-hint">fromLevel · toLevel · reason</span></label>
+                <label><input type="checkbox" data-ev="taskPaused"> taskPaused<span class="ev-hint">currentSelection</span></label>
+                <label><input type="checkbox" data-ev="taskResumed"> taskResumed<span class="ev-hint">pausedDurationMs</span></label>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <button class="glabel" aria-expanded="false">Appearance <span class="chevron" aria-hidden="true">▶</span></button>
+            <div class="group-body">
+            <div class="row">
+              <label>Primary colour</label>
+              <input type="color" id="c_color_primary" value="#111111">
+            </div>
+            <div class="row">
+              <label>Background</label>
+              <input type="color" id="c_color_bg" value="#ffffff">
+            </div>
+            <div class="row">
+              <label>Border colour</label>
+              <input type="color" id="c_color_border" value="#e0e0e0">
+            </div>
+            <div class="row">
+              <label>Highlight colour</label>
+              <input type="color" id="c_color_hi" value="#f0f0f0">
+            </div>
+            <div class="row">
+              <label>Font family<span class="hint">CSS font-family value</span></label>
+              <input type="text" id="c_font" placeholder="system-ui, sans-serif" style="width:130px">
+            </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ---- Right: preview + code ---- -->
+      <div class="preview-stack">
+        <div class="preview-block">
+          <div class="pv-head">
+            <span class="t">Live preview</span>
+          </div>
+          <div id="livePreview"></div>
+          <div id="lifecycle-btns" role="toolbar" aria-label="Preview controls">
+            <button id="btn_start"  class="lc-btn">Start</button>
+            <button id="btn_pause"  class="lc-btn" disabled>Pause</button>
+            <button id="btn_resume" class="lc-btn" disabled>Resume</button>
+            <button id="btn_stop"   class="lc-btn" disabled>Stop</button>
+            <button id="btn_reset"  class="lc-btn" disabled>Reset</button>
+          </div>
+        </div>
+        <!-- ---- Event log panel ---- -->
+        <div class="panel" id="event-log-panel">
+          <div class="panel-head">
+            <span class="ic"></span>
+            <h3>Event log</h3>
+            <button id="clear-log-btn" class="lc-btn" style="margin-left:auto;padding:2px 9px;font-size:11.5px">clear</button>
+          </div>
+          <div id="event-log-body">
+            <p id="event-log-empty" style="font-size:13px;color:var(--muted);padding:10px 18px;margin:0;font-style:italic">Start a task to see events.</p>
+            <div id="event-log-list"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    </div><!-- /panel-configure -->
+
+    <div id="panel-gencode" role="tabpanel" aria-labelledby="toptab-gencode" hidden>
+      <div class="lv-wrap">
+        <div class="pv-head">
+          <span class="t">Generated code</span>
+          <span class="badge">copy into oTree / any HTML page</span>
+        </div>
+        <div class="code-tabs">
+          <button class="tab-btn on" id="tab_html">HTML</button>
+          <button class="tab-btn" id="tab_otree">oTree</button>
+          <span id="otree-style-toggle" style="display:none; align-items:flex-end; gap:1px; margin-left:6px;">
+            <button class="substyle-btn on" id="tab_otree_basic">Basic</button>
+            <button class="substyle-btn" id="tab_otree_live">Live</button>
+          </span>
+          <button id="downloadIndexBtn">↓ Download index.html</button>
+          <button id="downloadLiveHtmlBtn" style="display:none;">↓ Download InvoiceTaskLive.html</button>
+        </div>
+        <div class="code" style="margin-top: 0; border-radius: 0 14px 14px 14px;">
+          <button class="copy" id="copyBtn">copy</button>
+          <pre id="snippet"></pre>
+        </div>
+      </div>
+    </div><!-- /panel-gencode -->
+
+    <div id="panel-logviewer" role="tabpanel" aria-labelledby="toptab-logviewer" hidden>
+      <div class="lv-wrap">
+        <div class="pv-head">
+          <span class="t">Log viewer</span>
+          <span class="badge">paste or upload an exported invoice_log JSON array</span>
+        </div>
+        <div class="panel">
+          <div class="panel-body" style="padding-top:14px">
+            <textarea id="log-viewer-input"
+              placeholder='[{"eventType":"taskStarted","sequence":1, …}]'></textarea>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+              <label class="lc-btn" for="log-viewer-file"
+                style="cursor:pointer;font-size:12px;padding:4px 10px">↑ Upload .json</label>
+              <input type="file" id="log-viewer-file" accept=".json,application/json" style="display:none">
+              <button id="log-viewer-clear"
+                class="lc-btn" style="font-size:12px;padding:4px 10px">Clear</button>
+              <span id="log-viewer-count"
+                style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-left:4px"></span>
+            </div>
+            <div id="log-viewer-error"></div>
+          </div>
+          <div id="log-viewer-body">
+            <p id="log-viewer-empty"
+              style="font-size:13px;color:var(--muted);padding:10px 18px;margin:0;font-style:italic">Paste
+              or upload a JSON log array to see the event timeline.</p>
+            <div id="log-viewer-list"></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /panel-logviewer -->
+
+  </div>
+
+  <script>
+    /* ---- CSS var defaults (used to decide when to emit in snippet) ---- */
+    const CSS_DEFAULTS = {
+      '--invoice-task-primary-color': '#111111',
+      '--invoice-task-background': '#ffffff',
+      '--invoice-task-border-color': '#e0e0e0',
+      '--invoice-task-highlight-color': '#f0f0f0',
+    };
+
+    /* ---- Escaping helpers ---- */
+    // Produces a valid HTML attribute value (& " < > escaped) for the generated snippet.
+    function escAttr(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    // Escapes a string for safe insertion into innerHTML (e.g. inside <pre>).
+    // innerText later decodes one level, so generated-snippet text round-trips correctly.
+    function escHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    // Sanitises a value for use in a CSS property inside a generated <style> block.
+    // Strips characters that can break the declaration or block structure when the
+    // snippet is copy-pasted into a stylesheet:
+    //   < >  — prevent </style> tag from closing the surrounding <style> block
+    //   ; { } — prevent declaration termination or block escape (rule injection)
+    //   \r \n — prevent line-break injection
+    // style.setProperty() is an API call and does not parse CSS text, so these
+    // characters are harmless there — we strip them for snippet consistency.
+    function safeCssValue(str) {
+      return String(str).replace(/[<>;{}\r\n]/g, '');
+    }
+
+    /* ---- Component management ---- */
+    let taskEl = null;
+    let previewState = 'idle';
+
+    function updateLifecycleButtons() {
+      const s = previewState;
+      document.getElementById('btn_start').disabled  = s !== 'idle';
+      document.getElementById('btn_pause').disabled  = s !== 'running';
+      document.getElementById('btn_resume').disabled = s !== 'paused';
+      document.getElementById('btn_stop').disabled   = s !== 'running' && s !== 'paused';
+      document.getElementById('btn_reset').disabled  = s === 'idle';
+    }
+
+    // taskPaused / taskResumed are only emitted at logLevel:'detailed', so the event
+    // listener alone is unreliable for those two. After each button click we sync
+    // state directly from getSummary(); the event listener handles the rest.
+    function syncStateFromElement() {
+      if (!taskEl) return;
+      try {
+        const s = taskEl.getSummary().state;
+        if (s !== previewState) {
+          previewState = s;
+          updateLifecycleButtons();
+        }
+      } catch (_) {}
+    }
+
+    function attachPreviewEventListener(el) {
+      el.addEventListener('invoiceTaskEvent', (e) => {
+        if (taskEl !== el) return; // stale element after rapid rebuild, ignore
+        addEventToLog(e.detail);
+        const type = e.detail.eventType;
+        if (type === 'taskStarted') {
+          previewState = 'running';
+        } else if (type === 'taskFinished') {
+          // Read actual post-finish state: stop/reset → 'idle', error → 'error'.
+          // taskCompleted fires synchronously after taskFinished for natural end
+          // and will override to 'completed' in the next branch.
+          previewState = (taskEl ? taskEl.getSummary().state : null) || 'idle';
+        } else if (type === 'taskCompleted') {
+          previewState = 'completed';
+        }
+        updateLifecycleButtons();
+      });
+    }
+
+    function lcClick(action) {
+      if (!taskEl) return;
+      try { action(); } catch (_) {}
+      syncStateFromElement();
+    }
+
+    document.getElementById('btn_start').addEventListener('click',  () => lcClick(() => taskEl.start()));
+    document.getElementById('btn_pause').addEventListener('click',  () => lcClick(() => taskEl.pause()));
+    document.getElementById('btn_resume').addEventListener('click', () => lcClick(() => taskEl.resume()));
+    document.getElementById('btn_stop').addEventListener('click',   () => lcClick(() => taskEl.stop()));
+    document.getElementById('btn_reset').addEventListener('click',  () => lcClick(() => taskEl.reset()));
+
+    const cfg = {
+      autoStart: false,
+      flow: true,
+      startlvl: '1',
+      minlvl: '1',
+      maxlvl: '3',
+      up: 4,
+      down: 4,
+      fb: true,
+      lvl: false,
+      tl: true,
+      totaltlmin: 300,
+      roundTimer: false,
+      roundDuration: 30,
+      max: 20,
+      maxCorrect: 0,
+      perround: 8,
+      order: 'random',
+      sessionId: '',
+      randomSeed: '',
+      completedMsg: '',
+      completedMsgTouched: false,
+      logLevel: 'basic',
+      mutedEvents: new Set(),
+    };
+
+    const DEFAULT_COMPLETED_MSG = 'You have completed all invoice matching tasks.';
+
+    function normalizeInvoiceCount(value) {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) return 8;
+      return Math.max(3, Math.min(12, Math.round(parsed)));
+    }
+
+    function applyCssVars() {
+      if (!taskEl) return;
+      taskEl.style.setProperty('--invoice-task-primary-color', document.getElementById('c_color_primary').value);
+      taskEl.style.setProperty('--invoice-task-background', document.getElementById('c_color_bg').value);
+      taskEl.style.setProperty('--invoice-task-border-color', document.getElementById('c_color_border').value);
+      taskEl.style.setProperty('--invoice-task-highlight-color', document.getElementById('c_color_hi').value);
+      const font = safeCssValue(document.getElementById('c_font').value.trim());
+      if (font) taskEl.style.setProperty('--invoice-task-font-family', font);
+      else taskEl.style.removeProperty('--invoice-task-font-family');
+    }
+
+    function applyLiveOptions() {
+      if (!taskEl) return;
+      taskEl.adaptiveDifficulty = cfg.flow;
+      taskEl.correctStreakForLevelUp = Math.max(1, cfg.up);
+      taskEl.wrongStreakForLevelDown = Math.max(1, cfg.down);
+      taskEl.showFeedback = cfg.fb;
+      taskEl.showDifficulty = cfg.lvl;
+      taskEl.showTimer = cfg.tl;
+      taskEl.maxSubmissions = cfg.max > 0 ? cfg.max : null;
+      taskEl.maxCorrectSubmissions = cfg.maxCorrect > 0 ? cfg.maxCorrect : null;
+      taskEl.sessionId = cfg.sessionId || null;
+      if (cfg.completedMsgTouched) taskEl.completedMessage = cfg.completedMsg;
+      taskEl.logLevel = cfg.logLevel;
+      taskEl.mutedEvents = Array.from(cfg.mutedEvents);
+      applyCssVars();
+    }
+
+    function rebuildPreview() {
+      const container = document.getElementById('livePreview');
+      if (taskEl) {
+        try { taskEl.stop(); } catch (_) {}
+        taskEl.remove();
+        taskEl = null;
+      }
+      const el = document.createElement('invoice-matching-task');
+      el.setAttribute('task-duration', String(cfg.totaltlmin));
+      el.setAttribute('start-difficulty', cfg.startlvl);
+      el.setAttribute('min-difficulty', cfg.minlvl);
+      el.setAttribute('max-difficulty', cfg.maxlvl);
+      el.setAttribute('number-of-options', String(normalizeInvoiceCount(cfg.perround)));
+      el.setAttribute('invoice-order', cfg.order);
+      if (cfg.order === 'fixed' && cfg.randomSeed) {
+        el.setAttribute('random-seed', cfg.randomSeed);
+      }
+      if (cfg.roundTimer && cfg.roundDuration > 0) {
+        el.setAttribute('round-duration', String(cfg.roundDuration));
+      }
+      container.appendChild(el);
+      taskEl = el;
+      clearEventLog();
+      attachPreviewEventListener(el);
+      // Guard against rapid rebuilds: only start the element that is still current.
+      // Use setTimeout(0) rather than requestAnimationFrame so the callback fires
+      // even when the tab is hidden (RAF is throttled in background/preview tabs).
+      customElements.whenDefined('invoice-matching-task').then(() => {
+        setTimeout(() => {
+          if (taskEl === el) {
+            applyLiveOptions();
+            el.start();
+          }
+        }, 0);
+      });
+    }
+
+    /* ---- Event log ---- */
+    function formatEventSummary(d) {
+      const seq = `#${d.sequence}`;
+      const rnd = d.roundIndex != null ? `Round ${d.roundIndex + 1}` : null;
+      switch (d.eventType) {
+        case 'taskStarted':
+          return `${seq}  Task started — Lvl ${d.currentDifficulty}`;
+        case 'roundStarted':
+          return `${seq}  ${rnd} — target €${d.targetAmount}, ${(d.visibleInvoices || []).length} invoices`;
+        case 'roundSubmitted': {
+          const verdict = d.isCorrect ? 'Correct' : 'Wrong';
+          const secs = typeof d.reactionTimeMs === 'number' ? ` — ${(d.reactionTimeMs / 1000).toFixed(1)} s` : '';
+          const timed = d.timedOut ? ' · timed out' : '';
+          return `${seq}  ${rnd} submitted — ${verdict}${secs}${timed}`;
+        }
+        case 'selectionChanged': {
+          const action = d.isChecked ? 'checked' : 'unchecked';
+          return `${seq}  ${d.invoiceId} ${action} (sum €${d.currentSum})`;
+        }
+        case 'difficultyChanged': {
+          const reasonMap = { streak_up: 'streak up', streak_down: 'streak down', config_clamp: 'config clamp' };
+          const reason = reasonMap[d.reason] || (d.reason || '').replace(/_/g, ' ');
+          return `${seq}  Difficulty ${d.fromLevel} → ${d.toLevel} (${reason})`;
+        }
+        case 'taskPaused':
+          return `${seq}  Task paused`;
+        case 'taskResumed':
+          return typeof d.pausedDurationMs === 'number'
+            ? `${seq}  Task resumed — paused ${(d.pausedDurationMs / 1000).toFixed(1)} s`
+            : `${seq}  Task resumed`;
+        case 'taskFinished':
+          return `${seq}  Task finished — ${(d.reason || '').replace(/_/g, ' ')}`;
+        case 'taskCompleted':
+          return `${seq}  Task completed`;
+        case 'configChanged':
+          return `${seq}  Config changed — ${(d.changes || []).length} option${(d.changes || []).length !== 1 ? 's' : ''}`;
+        case 'error':
+          return `${seq}  ⚠ Error: ${d.code ?? 'unknown'} (${d.severity ?? 'unknown'})`;
+        default:
+          return `${seq}  ${d.eventType}`;
+      }
+    }
+
+    function getEventRowClass(d) {
+      if (d.eventType === 'roundSubmitted') return d.isCorrect ? 'ev-correct' : 'ev-wrong';
+      if (d.eventType === 'error') return 'ev-error';
+      if (d.eventType === 'taskFinished' || d.eventType === 'taskCompleted') return 'ev-finish';
+      return '';
+    }
+
+    // Shared row renderer — used by both the live event log and the log viewer.
+    function createEventRow(detail) {
+      const row = document.createElement('details');
+      const cls = getEventRowClass(detail);
+      row.className = cls ? `ev-row ${cls}` : 'ev-row';
+      const summary = document.createElement('summary');
+      summary.textContent = formatEventSummary(detail);
+      row.appendChild(summary);
+      const pre = document.createElement('pre');
+      pre.className = 'ev-detail';
+      pre.textContent = JSON.stringify(detail, null, 2);
+      row.appendChild(pre);
+      return row;
+    }
+
+    function addEventToLog(detail) {
+      const list = document.getElementById('event-log-list');
+      const body = document.getElementById('event-log-body');
+      const empty = document.getElementById('event-log-empty');
+      if (empty) empty.style.display = 'none';
+
+      // Capture scroll position before appending so scrollHeight reflects old content.
+      const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 4;
+
+      list.appendChild(createEventRow(detail));
+
+      // Only auto-scroll when already pinned to the bottom — avoids jerking the
+      // user away from a row they scrolled up to read or expanded.
+      if (atBottom) body.scrollTop = body.scrollHeight;
+    }
+
+    function clearEventLog() {
+      document.getElementById('event-log-list').innerHTML = '';
+      const empty = document.getElementById('event-log-empty');
+      if (empty) empty.style.display = '';
+    }
+
+    document.getElementById('clear-log-btn').addEventListener('click', clearEventLog);
+
+    function setValMsg(id, text) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text || '';
+      el.classList.toggle('visible', !!text);
+    }
+
+    function validateDifficultySettings() {
+      const start = parseInt(cfg.startlvl, 10);
+      const min = parseInt(cfg.minlvl, 10);
+      const max = parseInt(cfg.maxlvl, 10);
+
+      const minMaxConflict = min > max;
+
+      setValMsg(
+        'val_maxlvl',
+        minMaxConflict
+          ? `Max difficulty must be ≥ Min difficulty (${min}). The component will swap them automatically.`
+          : null,
+      );
+      setValMsg(
+        'val_minlvl',
+        minMaxConflict
+          ? `Min difficulty must be ≤ Max difficulty (${max}). The component will swap them automatically.`
+          : null,
+      );
+
+      // Only validate start when min/max are consistent — otherwise the message
+      // label would reference swapped effective values and confuse the researcher.
+      let startMsg = null;
+      if (!minMaxConflict) {
+        if (start < min) {
+          startMsg = `Must be ≥ Min difficulty (${min}). The component will use ${min} instead.`;
+        } else if (start > max) {
+          startMsg = `Must be ≤ Max difficulty (${max}). The component will use ${max} instead.`;
+        }
+      }
+      setValMsg('val_startlvl', startMsg);
+    }
+
+    function syncDependentStates() {
+      document.getElementById('wrap_thr').classList.toggle('disabled-soft', !cfg.flow);
+      document.getElementById('wrap_round_duration').classList.toggle('disabled-soft', !cfg.roundTimer);
+      document.getElementById('wrap_seed').classList.toggle('disabled-soft', cfg.order !== 'fixed');
+      validateDifficultySettings();
+    }
+
+    /* ---- Snippet generator ---- */
+    function buildSnippetParts(c) {
+      const attrs = [];
+      attrs.push(['task-duration', c.totaltlmin]);
+      attrs.push(['start-difficulty', c.startlvl]);
+      if (c.minlvl !== '1') attrs.push(['min-difficulty', c.minlvl]);
+      attrs.push(['max-difficulty', c.maxlvl]);
+      attrs.push(['adaptive-difficulty', c.flow]);
+      if (c.flow) {
+        attrs.push(['correct-streak-for-level-up', c.up]);
+        attrs.push(['wrong-streak-for-level-down', c.down]);
+      }
+      attrs.push(['number-of-options', normalizeInvoiceCount(c.perround)]);
+      attrs.push(['invoice-order', c.order]);
+      if (c.order === 'fixed' && c.randomSeed) attrs.push(['random-seed', c.randomSeed]);
+      if (c.max > 0) attrs.push(['max-submissions', c.max]);
+      if (c.maxCorrect > 0) attrs.push(['max-correct-submissions', c.maxCorrect]);
+      attrs.push(['show-feedback', c.fb]);
+      attrs.push(['show-timer', c.tl]);
+      if (c.lvl) attrs.push(['show-difficulty', true]);
+      if (c.completedMsgTouched) attrs.push(['completed-message', c.completedMsg]);
+      if (c.logLevel !== 'basic') attrs.push(['log-level', c.logLevel]);
+      if (c.mutedEvents.size > 0) attrs.push(['muted-events', Array.from(c.mutedEvents).join(',')]);
+      if (c.roundTimer && c.roundDuration > 0) attrs.push(['round-duration', c.roundDuration]);
+      if (c.sessionId) attrs.push(['session-id', c.sessionId]);
+      if (c.autoStart) attrs.push(['auto-start', true]);
+
+      const attrHtml = attrs
+        .map(([k, v]) => {
+          const attrVal = escAttr(String(v));
+          const dispVal = escHtml(attrVal);
+          return `\n  <span class="a">${k}</span>=<span class="v">"${dispVal}"</span>`;
+        })
+        .join('');
+
+      // CSS vars — only emit when non-default
+      const colorVarIds = {
+        '--invoice-task-primary-color': 'c_color_primary',
+        '--invoice-task-background': 'c_color_bg',
+        '--invoice-task-border-color': 'c_color_border',
+        '--invoice-task-highlight-color': 'c_color_hi',
+      };
+      const cssLines = [];
+      for (const [varName, elId] of Object.entries(colorVarIds)) {
+        const val = document.getElementById(elId).value;
+        if (val.toLowerCase() !== CSS_DEFAULTS[varName]) {
+          cssLines.push(`    ${varName}: ${val};`);
+        }
+      }
+      const font = safeCssValue(document.getElementById('c_font').value.trim());
+      if (font) cssLines.push(`    --invoice-task-font-family: ${escHtml(font)};`);
+
+      let styleBlock = '';
+      if (cssLines.length > 0) {
+        styleBlock =
+          `<span class="k">&lt;style&gt;</span>\n` +
+          `  invoice-matching-task {\n` +
+          cssLines.join('\n') + '\n' +
+          `  }\n` +
+          `<span class="k">&lt;/style&gt;</span>\n\n`;
+      }
+
+      return { attrHtml, styleBlock };
+    }
+
+    function renderSnippet(c) {
+      const { attrHtml, styleBlock } = buildSnippetParts(c);
+      // With auto-start the component starts itself on connect; a manual start()
+      // would be a second start() → invalid_state_transition. Emit a note instead.
+      const startLine = c.autoStart
+        ? `  <span class="c">// auto-start="true" starts the task on load — no manual start() needed</span>\n`
+        : `  task.start();\n`;
+      return (
+        `<span class="c">&lt;!-- paste into any HTML page --&gt;</span>\n` +
+        styleBlock +
+        `<span class="k">&lt;script</span> <span class="a">src</span>=<span class="v">"./invoice-matching-task.js"</span><span class="k">&gt;&lt;/script&gt;</span>\n` +
+        `\n` +
+        `<span class="k">&lt;invoice-matching-task</span>${attrHtml}<span class="k">&gt;&lt;/invoice-matching-task&gt;</span>\n` +
+        `\n` +
+        `<span class="k">&lt;p</span> <span class="a">id</span>=<span class="v">"invoice-log-status"</span><span class="k">&gt;</span>0 events collected<span class="k">&lt;/p&gt;</span>\n` +
+        `<span class="k">&lt;button</span> <span class="a">id</span>=<span class="v">"invoice-log-download"</span> <span class="a">style</span>=<span class="v">"display:none"</span><span class="k">&gt;</span>Download JSON<span class="k">&lt;/button&gt;</span>\n` +
+        `\n` +
+        `<span class="k">&lt;script&gt;</span>\n` +
+        `  <span class="k">const</span> task = document.querySelector(<span class="v">'invoice-matching-task'</span>);\n` +
+        `  <span class="k">const</span> invoiceLogs = [];\n` +
+        `\n` +
+        `  task.addEventListener(<span class="v">'invoiceTaskEvent'</span>, (event) =&gt; {\n` +
+        `    console.log(event.detail);\n` +
+        `    invoiceLogs.push(event.detail);\n` +
+        `    document.getElementById(<span class="v">'invoice-log-status'</span>).textContent =\n` +
+        `      invoiceLogs.length + <span class="v">' events collected'</span>;\n` +
+        `    <span class="k">if</span> (event.detail.eventType === <span class="v">'taskFinished'</span>) {\n` +
+        `      document.getElementById(<span class="v">'invoice-log-download'</span>).style.display = <span class="v">''</span>;\n` +
+        `    }\n` +
+        `  });\n` +
+        `\n` +
+        `  document.getElementById(<span class="v">'invoice-log-download'</span>).addEventListener(<span class="v">'click'</span>, () =&gt; {\n` +
+        `    <span class="c">// Filename: sessionId when set, ISO timestamp otherwise; whitelist-sanitised.</span>\n` +
+        `    <span class="k">const</span> sid = (invoiceLogs[0] || {}).sessionId || <span class="k">new</span> Date().toISOString();\n` +
+        `    <span class="k">const</span> safeName = sid.replace(/[^a-zA-Z0-9._-]/g, <span class="v">'_'</span>);\n` +
+        `    <span class="k">const</span> blob = <span class="k">new</span> Blob([JSON.stringify(invoiceLogs, <span class="k">null</span>, 2)], { type: <span class="v">'application/json'</span> });\n` +
+        `    <span class="k">const</span> url = URL.createObjectURL(blob);\n` +
+        `    <span class="k">const</span> a = document.createElement(<span class="v">'a'</span>);\n` +
+        `    a.href = url; a.download = <span class="v">'invoice_log_'</span> + safeName + <span class="v">'.json'</span>; a.click();\n` +
+        `    URL.revokeObjectURL(url);\n` +
+        `  });\n` +
+        `\n` +
+        startLine +
+        `<span class="k">&lt;/script&gt;</span>`
+      );
+    }
+
+    function renderOTreeSnippet(c) {
+      const { attrHtml, styleBlock } = buildSnippetParts(c);
+      // See renderSnippet: skip the manual start() when auto-start is enabled.
+      const startBlock = c.autoStart
+        ? `  <span class="c">// auto-start="true" starts the task on load — no manual start() needed</span>\n`
+        : `  customElements.whenDefined(<span class="v">'invoice-matching-task'</span>).then(() =&gt; {\n` +
+          `    requestAnimationFrame(() =&gt; task.start());\n` +
+          `  });\n`;
+      return (
+        `<span class="c">&lt;!-- oTree model (models.py): invoice_log = models.LongStringField(initial='[]') --&gt;</span>\n` +
+        `<span class="c">&lt;!-- LongStringField (not StringField): the event log JSON can exceed StringField's ~10k-char limit. --&gt;</span>\n` +
+        `<span class="c">&lt;!-- oTree page (pages.py): form_model = 'player', form_fields = ['invoice_log'] --&gt;</span>\n` +
+        `\n` +
+        styleBlock +
+        `<span class="k">&lt;script</span> <span class="a">src</span>=<span class="v">"./invoice-matching-task.js"</span><span class="k">&gt;&lt;/script&gt;</span>\n` +
+        `\n` +
+        `<span class="k">&lt;invoice-matching-task</span>${attrHtml}<span class="k">&gt;&lt;/invoice-matching-task&gt;</span>\n` +
+        `\n` +
+        `<span class="k">&lt;form</span> <span class="a">id</span>=<span class="v">"task-form"</span> <span class="a">method</span>=<span class="v">"post"</span> <span class="a">action</span>=<span class="v">"{{ form.action_url }}"</span><span class="k">&gt;</span>\n` +
+        `  {% csrf_token %}\n` +
+        `  {{ form.invoice_log.as_hidden }}\n` +
+        `<span class="k">&lt;/form&gt;</span>\n` +
+        `\n` +
+        `<span class="k">&lt;script&gt;</span>\n` +
+        `  <span class="k">const</span> invoiceLogs = [];\n` +
+        `  <span class="c">// Selects by name — works with {{ form.invoice_log.as_hidden }} (id="id_invoice_log") and a plain hidden input.</span>\n` +
+        `  <span class="k">const</span> hiddenInput = document.querySelector(<span class="v">'input[name="invoice_log"]'</span>);\n` +
+        `  <span class="k">const</span> task = document.querySelector(<span class="v">'invoice-matching-task'</span>);\n` +
+        `\n` +
+        `  task.addEventListener(<span class="v">'invoiceTaskEvent'</span>, (event) =&gt; {\n` +
+        `    invoiceLogs.push(event.detail);\n` +
+        `    hiddenInput.value = JSON.stringify(invoiceLogs);\n` +
+        `    <span class="c">// Deferred: taskCompleted fires synchronously after taskFinished in the same tick.</span>\n` +
+        `    <span class="c">// setTimeout(0) lets that trailing event update the hidden field before submit.</span>\n` +
+        `    <span class="k">if</span> (event.detail.eventType === <span class="v">'taskFinished'</span>) {\n` +
+        `      setTimeout(() =&gt; document.getElementById(<span class="v">'task-form'</span>).submit(), 0);\n` +
+        `    }\n` +
+        `  });\n` +
+        `\n` +
+        startBlock +
+        `<span class="k">&lt;/script&gt;</span>`
+      );
+    }
+
+    function renderOTreeLiveSnippet(c) {
+      const { attrHtml, styleBlock } = buildSnippetParts(c);
+      return (
+        `<span class="c">&lt;!-- Paste this element into invoice_task_live's InvoiceTaskLive.html, --&gt;</span>\n` +
+        `<span class="c">&lt;!-- replacing the existing &lt;invoice-matching-task&gt; element there. --&gt;</span>\n` +
+        `<span class="c">&lt;!-- The server-side code (ExtraModel + live_method) stays as-is. --&gt;</span>\n` +
+        `\n` +
+        styleBlock +
+        `<span class="k">&lt;invoice-matching-task</span>${attrHtml}<span class="k">&gt;&lt;/invoice-matching-task&gt;</span>\n`
+      );
+    }
+
+    let currentTab = 'html';
+    let otreeStyle = 'basic';
+
+    function updateSnippet() {
+      let html;
+      if (currentTab === 'otree') {
+        html = otreeStyle === 'live' ? renderOTreeLiveSnippet(cfg) : renderOTreeSnippet(cfg);
+      } else {
+        html = renderSnippet(cfg);
+      }
+      document.getElementById('snippet').innerHTML = html;
+    }
+
+    /* ---- Control bindings ---- */
+    // Init-only options: changing these requires a preview restart.
+    const INIT_KEYS = new Set([
+      'startlvl', 'minlvl', 'maxlvl',
+      'totaltlmin', 'roundTimer', 'roundDuration',
+      'perround', 'order', 'randomSeed',
+    ]);
+
+    const bind = (id, key, type) => {
+      const el = document.getElementById(id);
+      el.addEventListener(type === 'check' ? 'change' : 'input', () => {
+        if (type === 'check') cfg[key] = el.checked;
+        else if (type === 'num') cfg[key] = Math.round(+el.value);
+        else cfg[key] = el.value; // 'val' (select) or 'text' (text input)
+        syncDependentStates();
+        if (INIT_KEYS.has(key)) {
+          rebuildPreview();
+        } else {
+          applyLiveOptions();
+        }
+        updateSnippet();
+      });
+    };
+
+    bind('c_autostart', 'autoStart', 'check');
+    bind('c_flow', 'flow', 'check');
+    bind('c_startlvl', 'startlvl', 'val');
+    bind('c_minlvl', 'minlvl', 'val');
+    bind('c_maxlvl', 'maxlvl', 'val');
+    bind('c_up', 'up', 'num');
+    bind('c_down', 'down', 'num');
+    bind('c_fb', 'fb', 'check');
+    bind('c_lvl', 'lvl', 'check');
+    bind('c_tl', 'tl', 'check');
+    bind('c_totaltl_min', 'totaltlmin', 'num');
+    bind('c_round_timer', 'roundTimer', 'check');
+    bind('c_round_duration', 'roundDuration', 'num');
+    bind('c_max', 'max', 'num');
+    bind('c_maxcorrect', 'maxCorrect', 'num');
+    bind('c_perround', 'perround', 'num');
+    bind('c_sessionid', 'sessionId', 'text');
+    bind('c_seed', 'randomSeed', 'text');
+    // completedMsg needs a touched flag so "" (explicit empty) is distinguishable from
+    // "never changed" (use component default, don't emit the attribute).
+    document.getElementById('c_completedmsg').addEventListener('input', (e) => {
+      cfg.completedMsg = e.target.value;
+      cfg.completedMsgTouched = true;
+      applyLiveOptions();
+      updateSnippet();
+    });
+
+    // Invoice order segmented control
+    document.querySelectorAll('#seg_order button').forEach((b) =>
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#seg_order button').forEach((x) => x.classList.remove('on'));
+        b.classList.add('on');
+        cfg.order = b.dataset.v;
+        syncDependentStates();
+        rebuildPreview();
+        updateSnippet();
+      }),
+    );
+
+    // Log level segmented control (live option)
+    document.querySelectorAll('#seg_loglevel button').forEach((b) =>
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#seg_loglevel button').forEach((x) => x.classList.remove('on'));
+        b.classList.add('on');
+        cfg.logLevel = b.dataset.v;
+        applyLiveOptions();
+        updateSnippet();
+      }),
+    );
+
+    // Muted events checkboxes (live option)
+    document.querySelectorAll('#muted_checks input[type="checkbox"]').forEach((cb) =>
+      cb.addEventListener('change', () => {
+        if (cb.checked) cfg.mutedEvents.add(cb.dataset.ev);
+        else cfg.mutedEvents.delete(cb.dataset.ev);
+        applyLiveOptions();
+        updateSnippet();
+      }),
+    );
+
+    // CSS var controls (applied live to element; not a component config option)
+    ['c_color_primary', 'c_color_bg', 'c_color_border', 'c_color_hi', 'c_font'].forEach((id) =>
+      document.getElementById(id).addEventListener('input', () => {
+        applyCssVars();
+        updateSnippet();
+      }),
+    );
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const txt = document.getElementById('snippet').innerText;
+      navigator.clipboard?.writeText(txt);
+      const b = document.getElementById('copyBtn');
+      b.textContent = 'copied';
+      setTimeout(() => (b.textContent = 'copy'), 1200);
+    });
+
+    document.getElementById('tab_html').addEventListener('click', () => {
+      currentTab = 'html';
+      document.getElementById('tab_html').classList.add('on');
+      document.getElementById('tab_otree').classList.remove('on');
+      document.getElementById('downloadIndexBtn').style.display = '';
+      document.getElementById('downloadLiveHtmlBtn').style.display = 'none';
+      document.getElementById('otree-style-toggle').style.display = 'none';
+      updateSnippet();
+    });
+
+    document.getElementById('tab_otree').addEventListener('click', () => {
+      currentTab = 'otree';
+      document.getElementById('tab_otree').classList.add('on');
+      document.getElementById('tab_html').classList.remove('on');
+      document.getElementById('downloadIndexBtn').style.display = 'none';
+      document.getElementById('downloadLiveHtmlBtn').style.display = otreeStyle === 'live' ? '' : 'none';
+      document.getElementById('otree-style-toggle').style.display = 'flex';
+      updateSnippet();
+    });
+
+    document.getElementById('tab_otree_basic').addEventListener('click', () => {
+      otreeStyle = 'basic';
+      document.getElementById('tab_otree_basic').classList.add('on');
+      document.getElementById('tab_otree_live').classList.remove('on');
+      document.getElementById('downloadLiveHtmlBtn').style.display = 'none';
+      updateSnippet();
+    });
+
+    document.getElementById('tab_otree_live').addEventListener('click', () => {
+      otreeStyle = 'live';
+      document.getElementById('tab_otree_live').classList.add('on');
+      document.getElementById('tab_otree_basic').classList.remove('on');
+      document.getElementById('downloadLiveHtmlBtn').style.display = '';
+      updateSnippet();
+    });
+
+    /* ---- Download index.html ---- */
+    // Decodes the syntax-highlighted renderSnippet() output into plain HTML text.
+    // Uses a temporary element — innerText strips span tags and decodes HTML entities
+    // in one pass, which is the same technique the copy button uses on #snippet.
+    function getSnippetPlainText(c) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderSnippet(c);
+      // textContent: entities decoded by the HTML parser, span tags stripped,
+      // newlines from text nodes preserved — no dependency on rendering/layout.
+      return tmp.textContent;
+    }
+
+    function generateIndexHtml(c) {
+      const rawSnippet = getSnippetPlainText(c);
+      // Strip the leading "paste into any HTML page" comment so it reads cleanly
+      // as a standalone file rather than a paste fragment.
+      const body = rawSnippet.replace(/^<!--[^]*?-->\n+/, '');
+      // Escape sessionId for use in <title> (it ends up as innerHTML, not an attribute).
+      const sidLabel = c.sessionId
+        ? ' — ' + c.sessionId.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        : '';
+      return (
+        '<!DOCTYPE html>\n' +
+        '<html lang="en">\n' +
+        '<head>\n' +
+        '  <meta charset="UTF-8">\n' +
+        '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+        '  <title>Invoice Matching Task' + sidLabel + '</title>\n' +
+        '</head>\n' +
+        '<body>\n\n' +
+        body +
+        '\n</body>\n' +
+        '</html>'
+      );
+    }
+
+    document.getElementById('downloadIndexBtn').addEventListener('click', () => {
+      const html = generateIndexHtml(cfg);
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    });
+
+    /* ---- Download InvoiceTaskLive.html (Live oTree style) ---- */
+    // Mirrors examples/otree/demo-app/invoice_task_live/InvoiceTaskLive.html.
+    // Keep this in sync if that file changes.
+    const INVOICE_TASK_LIVE_TEMPLATE = `{{ block title }}
+    Invoice Matching Task (Live)
+{{ endblock }}
+
+{{ block content }}
+
+<invoice-matching-task
+    task-duration="120"
+    start-difficulty="1"
+    max-submissions="20"
+    log-level="basic">
+</invoice-matching-task>
+
+<div id="live-metrics" style="max-width: 320px; margin-top: 8px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+    <strong>Live metrics</strong>
+    <table style="width: 100%; margin-top: 6px;">
+        <tr><td>Rounds submitted</td><td style="text-align:right"><span id="m-num-rounds">0</span></td></tr>
+        <tr><td>Correct</td><td style="text-align:right"><span id="m-num-correct">0</span></td></tr>
+        <tr><td>Accuracy</td><td style="text-align:right"><span id="m-accuracy">–</span></td></tr>
+        <tr><td>Mean reaction time</td><td style="text-align:right"><span id="m-mean-rt">–</span></td></tr>
+        <tr><td>Median reaction time</td><td style="text-align:right"><span id="m-median-rt">–</span></td></tr>
+        <tr><td>Best streak</td><td style="text-align:right"><span id="m-best-streak">0</span></td></tr>
+        <tr><td>Max difficulty reached</td><td style="text-align:right"><span id="m-max-difficulty">–</span></td></tr>
+    </table>
+</div>
+
+<div style="display:none">{{ next_button }}</div>
+
+<script src="{{ static 'invoice_task_live/invoice-matching-task.js' }}"><\/script>
+<script>
+  window.addEventListener('load', () => {
+    const task = document.querySelector('invoice-matching-task');
+    let started = false;
+    let pendingEvents = [];
+
+    function updateMetricsPanel(m) {
+      document.querySelector('#m-num-rounds').textContent = m.numRounds;
+      document.querySelector('#m-num-correct').textContent = m.numCorrect;
+      document.querySelector('#m-accuracy').textContent =
+        m.numRounds > 0 ? Math.round(m.accuracy * 100) + '%' : '–';
+      document.querySelector('#m-mean-rt').textContent =
+        m.meanReactionTimeMs != null ? Math.round(m.meanReactionTimeMs) + ' ms' : '–';
+      document.querySelector('#m-median-rt').textContent =
+        m.medianReactionTimeMs != null ? Math.round(m.medianReactionTimeMs) + ' ms' : '–';
+      document.querySelector('#m-best-streak').textContent = m.bestStreak;
+      document.querySelector('#m-max-difficulty').textContent = m.maxDifficultyReached;
+    }
+
+    window.liveRecv = function (response) {
+      if (!response) return;
+      if (response.metrics) {
+        updateMetricsPanel(response.metrics);
+      }
+      if (response.done) {
+        document.querySelector('.otree-btn-next')?.click();
+      }
+    };
+
+    function flushPendingEvents() {
+      if (liveSocket.readyState !== WebSocket.OPEN) return;
+      while (pendingEvents.length > 0) {
+        liveSend({ event: pendingEvents.shift() });
+      }
+    }
+    liveSocket.addEventListener('open', flushPendingEvents);
+
+    task.addEventListener('invoiceTaskEvent', (event) => {
+      if (event.detail.eventType === 'taskStarted') {
+        started = true;
+      }
+      if (liveSocket.readyState === WebSocket.OPEN) {
+        liveSend({ event: event.detail });
+      } else {
+        pendingEvents.push(event.detail);
+      }
+    });
+
+    function tryAutoStart(attempt) {
+      if (started) return;
+      if (typeof task.start === 'function') {
+        task.start();
+      }
+      if (attempt < 100) {
+        setTimeout(() => tryAutoStart(attempt + 1), 100);
+      }
+    }
+    customElements.whenDefined('invoice-matching-task').then(() => tryAutoStart(0));
+  });
+<\/script>
+
+{{ endblock }}
+`;
+
+    const DEFAULT_LIVE_ELEMENT = `<invoice-matching-task
+    task-duration="120"
+    start-difficulty="1"
+    max-submissions="20"
+    log-level="basic">
+</invoice-matching-task>`;
+
+    // Reuses renderOTreeLiveSnippet's plain-text round-trip (see getSnippetPlainText)
+    // then drops its "paste this into..." comment, which doesn't apply once the
+    // element is already substituted into the real file.
+    function getOTreeLiveElementText(c) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderOTreeLiveSnippet(c);
+      return tmp.textContent.replace(/^(?:<!--[^]*?-->\n)+\n*/, '').trimEnd();
+    }
+
+    function generateInvoiceTaskLiveHtml(c) {
+      const configuredElement = getOTreeLiveElementText(c);
+      // If InvoiceTaskLive.html's default element ever drifts from
+      // DEFAULT_LIVE_ELEMENT, .replace() would silently no-op and ship the
+      // stale default instead of the configured element — fail loudly instead.
+      if (!INVOICE_TASK_LIVE_TEMPLATE.includes(DEFAULT_LIVE_ELEMENT)) {
+        throw new Error(
+          'INVOICE_TASK_LIVE_TEMPLATE no longer contains DEFAULT_LIVE_ELEMENT — ' +
+          'update both to match the current invoice_task_live/InvoiceTaskLive.html.'
+        );
+      }
+      return INVOICE_TASK_LIVE_TEMPLATE.replace(DEFAULT_LIVE_ELEMENT, configuredElement);
+    }
+
+    document.getElementById('downloadLiveHtmlBtn').addEventListener('click', () => {
+      let html;
+      try {
+        html = generateInvoiceTaskLiveHtml(cfg);
+      } catch (err) {
+        alert('Could not generate InvoiceTaskLive.html: ' + err.message);
+        return;
+      }
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'InvoiceTaskLive.html';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    });
+
+    /* ---- Log viewer ---- */
+    function renderLogViewer(events) {
+      const list = document.getElementById('log-viewer-list');
+      const empty = document.getElementById('log-viewer-empty');
+      const count = document.getElementById('log-viewer-count');
+      list.innerHTML = '';
+      if (events.length === 0) {
+        empty.style.display = '';
+        count.textContent = '';
+        return;
+      }
+      empty.style.display = 'none';
+      events.forEach((d) => list.appendChild(createEventRow(d)));
+      count.textContent = events.length + ' event' + (events.length !== 1 ? 's' : '');
+    }
+
+    function parseAndRenderLogViewer(text) {
+      const errorEl = document.getElementById('log-viewer-error');
+      errorEl.textContent = '';
+      errorEl.classList.remove('visible');
+      errorEl.removeAttribute('role');
+
+      const trimmed = text.trim();
+      if (!trimmed) {
+        renderLogViewer([]);
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch (e) {
+        // Fatal — assertive announcement for screen readers.
+        errorEl.setAttribute('role', 'alert');
+        errorEl.textContent = 'Invalid JSON — ' + e.message;
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      if (!Array.isArray(parsed)) {
+        // Fatal — assertive announcement.
+        errorEl.setAttribute('role', 'alert');
+        errorEl.textContent =
+          'Expected a JSON array (e.g. from the Download JSON button), but got: ' +
+          typeof parsed + '.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      // Filter out any non-object entries gracefully; warn if any were skipped.
+      const events = parsed.filter((d) => d && typeof d === 'object' && !Array.isArray(d));
+      if (events.length < parsed.length) {
+        const skipped = parsed.length - events.length;
+        // Non-fatal notice — polite announcement so it doesn't interrupt reading.
+        errorEl.setAttribute('role', 'status');
+        errorEl.textContent =
+          'Note: ' + skipped + ' non-object item' + (skipped !== 1 ? 's' : '') +
+          ' in the array were skipped.';
+        errorEl.classList.add('visible');
+      }
+
+      renderLogViewer(events);
+    }
+
+    document.getElementById('log-viewer-input').addEventListener('input', (e) => {
+      parseAndRenderLogViewer(e.target.value);
+    });
+
+    document.getElementById('log-viewer-file').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = ev.target.result;
+        document.getElementById('log-viewer-input').value = text;
+        parseAndRenderLogViewer(text);
+      };
+      reader.onerror = () => {
+        const errorEl = document.getElementById('log-viewer-error');
+        errorEl.setAttribute('role', 'alert');
+        errorEl.textContent = 'Could not read the file.';
+        errorEl.classList.add('visible');
+      };
+      reader.readAsText(file);
+      // Reset so the same file can be re-selected.
+      e.target.value = '';
+    });
+
+    document.getElementById('log-viewer-clear').addEventListener('click', () => {
+      document.getElementById('log-viewer-input').value = '';
+      parseAndRenderLogViewer('');
+    });
+
+    /* ---- Top-level tab switching ---- */
+    function activateTopTab(name) {
+      ['configure', 'gencode', 'logviewer'].forEach(function (id) {
+        const tab = document.getElementById('toptab-' + id);
+        const panel = document.getElementById('panel-' + id);
+        const isActive = id === name;
+        tab.classList.toggle('on', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+        panel.hidden = !isActive;
+      });
+    }
+    document.getElementById('toptab-configure').addEventListener('click', () => activateTopTab('configure'));
+    document.getElementById('toptab-gencode').addEventListener('click', () => activateTopTab('gencode'));
+    document.getElementById('toptab-logviewer').addEventListener('click', () => activateTopTab('logviewer'));
+
+    /* ---- Collapsible config groups ---- */
+    document.querySelectorAll('.group > .glabel').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const group = btn.closest('.group');
+        const isOpen = group.classList.toggle('group--open');
+        btn.setAttribute('aria-expanded', String(isOpen));
+      });
+    });
+
+    /* ---- Init ---- */
+    syncDependentStates();
+    rebuildPreview();
+    updateSnippet();
+
+    /* ---- Config-surface self-check ----
+       Builds a snippet from a maxed-out config and asserts every supported
+       option is reachable as an emitted attribute. Logs an error (only on
+       failure) if a future edit drops a control. */
+    (function assertFullConfigSurface() {
+      const EXPECTED = [
+        'task-duration', 'round-duration', 'session-id', 'auto-start',
+        'start-difficulty', 'min-difficulty', 'max-difficulty', 'adaptive-difficulty',
+        'correct-streak-for-level-up', 'wrong-streak-for-level-down', 'number-of-options',
+        'invoice-order', 'random-seed', 'max-submissions', 'max-correct-submissions',
+        'show-timer', 'show-feedback', 'show-difficulty', 'completed-message',
+        'log-level', 'muted-events',
+      ];
+      const full = {
+        autoStart: true, flow: true, startlvl: '2', minlvl: '2', maxlvl: '5',
+        up: 3, down: 3, fb: true, lvl: true, tl: true, totaltlmin: 120,
+        roundTimer: true, roundDuration: 30, max: 20, maxCorrect: 10, perround: 8,
+        order: 'fixed', sessionId: 's1', randomSeed: 'seed', completedMsg: 'done',
+        completedMsgTouched: true, logLevel: 'detailed', mutedEvents: new Set(['roundStarted']),
+      };
+      const { attrHtml } = buildSnippetParts(full);
+      const emitted = (attrHtml.match(/class="a">([a-z-]+)</g) || []).map((s) =>
+        s.replace('class="a">', '').replace('<', ''),
+      );
+      const missing = EXPECTED.filter((a) => !emitted.includes(a));
+      if (missing.length) {
+        console.error(
+          '[configurator] config surface incomplete — these options have no control/snippet output:',
+          missing,
+        );
+      }
+    })();
+  </script>
+</body>
+
+</html>
