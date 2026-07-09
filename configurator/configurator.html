@@ -330,45 +330,6 @@
       align-items: flex-end;
     }
 
-    .tab-btn {
-      appearance: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12.5px;
-      padding: 5px 14px;
-      border: 1px solid var(--line);
-      border-bottom: none;
-      border-radius: 7px 7px 0 0;
-      background: #f0f2f5;
-      color: var(--muted);
-      cursor: pointer;
-    }
-
-    .tab-btn.on {
-      background: #181a1a;
-      color: #d6e8e6;
-      border-color: #181a1a;
-    }
-
-    .substyle-btn {
-      appearance: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      padding: 4px 9px;
-      border: 1px solid var(--line);
-      border-bottom: none;
-      border-radius: 5px 5px 0 0;
-      background: #f0f2f5;
-      color: var(--muted);
-      cursor: pointer;
-    }
-
-    .substyle-btn.on {
-      background: #3a3d3d;
-      color: #d6e8e6;
-      border-color: #3a3d3d;
-    }
-
-    #downloadIndexBtn,
     #downloadLiveHtmlBtn {
       margin-left: auto;
       font-family: 'IBM Plex Mono', monospace;
@@ -381,7 +342,6 @@
       cursor: pointer;
     }
 
-    #downloadIndexBtn:hover,
     #downloadLiveHtmlBtn:hover {
       background: var(--brand);
       color: #fff;
@@ -625,40 +585,6 @@
       margin-top: 28px;
     }
 
-    /* ---- Log viewer ---- */
-    #log-viewer-input {
-      width: 100%;
-      height: 72px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12.5px;
-      padding: 8px;
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      background: #fbfaf7;
-      color: var(--ink);
-      resize: vertical;
-    }
-
-    #log-viewer-body {
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
-    #log-viewer-error {
-      display: none;
-      font-size: 13px;
-      color: #92400e;
-      background: #fffbeb;
-      border-left: 3px solid #f59e0b;
-      border-radius: 0 4px 4px 0;
-      padding: 6px 10px;
-      margin-top: 8px;
-      line-height: 1.4;
-    }
-
-    #log-viewer-error.visible {
-      display: block;
-    }
   </style>
 </head>
 
@@ -666,13 +592,12 @@
   <div class="wrap">
     <header>
       <h1>Invoice Matching Task</h1>
-      <p class="sub">Configure &amp; preview the task · copy generated code · analyse event logs in Log Viewer.</p>
+      <p class="sub">Configure &amp; preview the task · copy generated code.</p>
     </header>
 
     <nav class="top-tabs" role="tablist">
       <button class="top-tab on" id="toptab-configure" role="tab" aria-selected="true" aria-controls="panel-configure">Configure</button>
       <button class="top-tab" id="toptab-gencode" role="tab" aria-selected="false" aria-controls="panel-gencode">Generated Code</button>
-      <button class="top-tab" id="toptab-logviewer" role="tab" aria-selected="false" aria-controls="panel-logviewer">Log Viewer</button>
     </nav>
 
     <div id="panel-configure" role="tabpanel" aria-labelledby="toptab-configure">
@@ -903,17 +828,10 @@
       <div class="lv-wrap">
         <div class="pv-head">
           <span class="t">Generated code</span>
-          <span class="badge">copy into oTree / any HTML page</span>
+          <span class="badge">paste into invoice_task_unified's InvoiceTaskUnified.html</span>
         </div>
         <div class="code-tabs">
-          <button class="tab-btn on" id="tab_html">HTML</button>
-          <button class="tab-btn" id="tab_otree">oTree</button>
-          <span id="otree-style-toggle" style="display:none; align-items:flex-end; gap:1px; margin-left:6px;">
-            <button class="substyle-btn on" id="tab_otree_basic">Basic</button>
-            <button class="substyle-btn" id="tab_otree_live">Live</button>
-          </span>
-          <button id="downloadIndexBtn">↓ Download index.html</button>
-          <button id="downloadLiveHtmlBtn" style="display:none;">↓ Download InvoiceTaskLive.html</button>
+          <button id="downloadLiveHtmlBtn">↓ Download InvoiceTaskUnified.html</button>
         </div>
         <div class="code" style="margin-top: 0; border-radius: 0 14px 14px 14px;">
           <button class="copy" id="copyBtn">copy</button>
@@ -921,37 +839,6 @@
         </div>
       </div>
     </div><!-- /panel-gencode -->
-
-    <div id="panel-logviewer" role="tabpanel" aria-labelledby="toptab-logviewer" hidden>
-      <div class="lv-wrap">
-        <div class="pv-head">
-          <span class="t">Log viewer</span>
-          <span class="badge">paste or upload an exported invoice_log JSON array</span>
-        </div>
-        <div class="panel">
-          <div class="panel-body" style="padding-top:14px">
-            <textarea id="log-viewer-input"
-              placeholder='[{"eventType":"taskStarted","sequence":1, …}]'></textarea>
-            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-              <label class="lc-btn" for="log-viewer-file"
-                style="cursor:pointer;font-size:12px;padding:4px 10px">↑ Upload .json</label>
-              <input type="file" id="log-viewer-file" accept=".json,application/json" style="display:none">
-              <button id="log-viewer-clear"
-                class="lc-btn" style="font-size:12px;padding:4px 10px">Clear</button>
-              <span id="log-viewer-count"
-                style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-left:4px"></span>
-            </div>
-            <div id="log-viewer-error"></div>
-          </div>
-          <div id="log-viewer-body">
-            <p id="log-viewer-empty"
-              style="font-size:13px;color:var(--muted);padding:10px 18px;margin:0;font-style:italic">Paste
-              or upload a JSON log array to see the event timeline.</p>
-            <div id="log-viewer-list"></div>
-          </div>
-        </div>
-      </div>
-    </div><!-- /panel-logviewer -->
 
   </div>
 
@@ -1348,120 +1235,21 @@
       return { attrHtml, styleBlock };
     }
 
-    function renderSnippet(c) {
-      const { attrHtml, styleBlock } = buildSnippetParts(c);
-      // With auto-start the component starts itself on connect; a manual start()
-      // would be a second start() → invalid_state_transition. Emit a note instead.
-      const startLine = c.autoStart
-        ? `  <span class="c">// auto-start="true" starts the task on load — no manual start() needed</span>\n`
-        : `  task.start();\n`;
-      return (
-        `<span class="c">&lt;!-- paste into any HTML page --&gt;</span>\n` +
-        styleBlock +
-        `<span class="k">&lt;script</span> <span class="a">src</span>=<span class="v">"./invoice-matching-task.js"</span><span class="k">&gt;&lt;/script&gt;</span>\n` +
-        `\n` +
-        `<span class="k">&lt;invoice-matching-task</span>${attrHtml}<span class="k">&gt;&lt;/invoice-matching-task&gt;</span>\n` +
-        `\n` +
-        `<span class="k">&lt;p</span> <span class="a">id</span>=<span class="v">"invoice-log-status"</span><span class="k">&gt;</span>0 events collected<span class="k">&lt;/p&gt;</span>\n` +
-        `<span class="k">&lt;button</span> <span class="a">id</span>=<span class="v">"invoice-log-download"</span> <span class="a">style</span>=<span class="v">"display:none"</span><span class="k">&gt;</span>Download JSON<span class="k">&lt;/button&gt;</span>\n` +
-        `\n` +
-        `<span class="k">&lt;script&gt;</span>\n` +
-        `  <span class="k">const</span> task = document.querySelector(<span class="v">'invoice-matching-task'</span>);\n` +
-        `  <span class="k">const</span> invoiceLogs = [];\n` +
-        `\n` +
-        `  task.addEventListener(<span class="v">'invoiceTaskEvent'</span>, (event) =&gt; {\n` +
-        `    console.log(event.detail);\n` +
-        `    invoiceLogs.push(event.detail);\n` +
-        `    document.getElementById(<span class="v">'invoice-log-status'</span>).textContent =\n` +
-        `      invoiceLogs.length + <span class="v">' events collected'</span>;\n` +
-        `    <span class="k">if</span> (event.detail.eventType === <span class="v">'taskFinished'</span>) {\n` +
-        `      document.getElementById(<span class="v">'invoice-log-download'</span>).style.display = <span class="v">''</span>;\n` +
-        `    }\n` +
-        `  });\n` +
-        `\n` +
-        `  document.getElementById(<span class="v">'invoice-log-download'</span>).addEventListener(<span class="v">'click'</span>, () =&gt; {\n` +
-        `    <span class="c">// Filename: sessionId when set, ISO timestamp otherwise; whitelist-sanitised.</span>\n` +
-        `    <span class="k">const</span> sid = (invoiceLogs[0] || {}).sessionId || <span class="k">new</span> Date().toISOString();\n` +
-        `    <span class="k">const</span> safeName = sid.replace(/[^a-zA-Z0-9._-]/g, <span class="v">'_'</span>);\n` +
-        `    <span class="k">const</span> blob = <span class="k">new</span> Blob([JSON.stringify(invoiceLogs, <span class="k">null</span>, 2)], { type: <span class="v">'application/json'</span> });\n` +
-        `    <span class="k">const</span> url = URL.createObjectURL(blob);\n` +
-        `    <span class="k">const</span> a = document.createElement(<span class="v">'a'</span>);\n` +
-        `    a.href = url; a.download = <span class="v">'invoice_log_'</span> + safeName + <span class="v">'.json'</span>; a.click();\n` +
-        `    URL.revokeObjectURL(url);\n` +
-        `  });\n` +
-        `\n` +
-        startLine +
-        `<span class="k">&lt;/script&gt;</span>`
-      );
-    }
-
-    function renderOTreeSnippet(c) {
-      const { attrHtml, styleBlock } = buildSnippetParts(c);
-      // See renderSnippet: skip the manual start() when auto-start is enabled.
-      const startBlock = c.autoStart
-        ? `  <span class="c">// auto-start="true" starts the task on load — no manual start() needed</span>\n`
-        : `  customElements.whenDefined(<span class="v">'invoice-matching-task'</span>).then(() =&gt; {\n` +
-          `    requestAnimationFrame(() =&gt; task.start());\n` +
-          `  });\n`;
-      return (
-        `<span class="c">&lt;!-- oTree model (models.py): invoice_log = models.LongStringField(initial='[]') --&gt;</span>\n` +
-        `<span class="c">&lt;!-- LongStringField (not StringField): the event log JSON can exceed StringField's ~10k-char limit. --&gt;</span>\n` +
-        `<span class="c">&lt;!-- oTree page (pages.py): form_model = 'player', form_fields = ['invoice_log'] --&gt;</span>\n` +
-        `\n` +
-        styleBlock +
-        `<span class="k">&lt;script</span> <span class="a">src</span>=<span class="v">"./invoice-matching-task.js"</span><span class="k">&gt;&lt;/script&gt;</span>\n` +
-        `\n` +
-        `<span class="k">&lt;invoice-matching-task</span>${attrHtml}<span class="k">&gt;&lt;/invoice-matching-task&gt;</span>\n` +
-        `\n` +
-        `<span class="k">&lt;form</span> <span class="a">id</span>=<span class="v">"task-form"</span> <span class="a">method</span>=<span class="v">"post"</span> <span class="a">action</span>=<span class="v">"{{ form.action_url }}"</span><span class="k">&gt;</span>\n` +
-        `  {% csrf_token %}\n` +
-        `  {{ form.invoice_log.as_hidden }}\n` +
-        `<span class="k">&lt;/form&gt;</span>\n` +
-        `\n` +
-        `<span class="k">&lt;script&gt;</span>\n` +
-        `  <span class="k">const</span> invoiceLogs = [];\n` +
-        `  <span class="c">// Selects by name — works with {{ form.invoice_log.as_hidden }} (id="id_invoice_log") and a plain hidden input.</span>\n` +
-        `  <span class="k">const</span> hiddenInput = document.querySelector(<span class="v">'input[name="invoice_log"]'</span>);\n` +
-        `  <span class="k">const</span> task = document.querySelector(<span class="v">'invoice-matching-task'</span>);\n` +
-        `\n` +
-        `  task.addEventListener(<span class="v">'invoiceTaskEvent'</span>, (event) =&gt; {\n` +
-        `    invoiceLogs.push(event.detail);\n` +
-        `    hiddenInput.value = JSON.stringify(invoiceLogs);\n` +
-        `    <span class="c">// Deferred: taskCompleted fires synchronously after taskFinished in the same tick.</span>\n` +
-        `    <span class="c">// setTimeout(0) lets that trailing event update the hidden field before submit.</span>\n` +
-        `    <span class="k">if</span> (event.detail.eventType === <span class="v">'taskFinished'</span>) {\n` +
-        `      setTimeout(() =&gt; document.getElementById(<span class="v">'task-form'</span>).submit(), 0);\n` +
-        `    }\n` +
-        `  });\n` +
-        `\n` +
-        startBlock +
-        `<span class="k">&lt;/script&gt;</span>`
-      );
-    }
-
-    function renderOTreeLiveSnippet(c) {
+    function renderOTreeUnifiedSnippet(c) {
       const { attrHtml, styleBlock } = buildSnippetParts(c);
       return (
-        `<span class="c">&lt;!-- Paste this element into invoice_task_live's InvoiceTaskLive.html, --&gt;</span>\n` +
-        `<span class="c">&lt;!-- replacing the existing &lt;invoice-matching-task&gt; element there. --&gt;</span>\n` +
-        `<span class="c">&lt;!-- The server-side code (ExtraModel + live_method) stays as-is. --&gt;</span>\n` +
+        `<span class="c">&lt;!-- Paste this element into invoice_task_unified's InvoiceTaskUnified.html, --&gt;</span>\n` +
+        `<span class="c">&lt;!-- in the participant branch (after {{ else }} — leave the operator --&gt;</span>\n` +
+        `<span class="c">&lt;!-- branch above it alone). Works whether Adaptive difficulty is on or --&gt;</span>\n` +
+        `<span class="c">&lt;!-- off — the operator page adapts to it at runtime. --&gt;</span>\n` +
         `\n` +
         styleBlock +
         `<span class="k">&lt;invoice-matching-task</span>${attrHtml}<span class="k">&gt;&lt;/invoice-matching-task&gt;</span>\n`
       );
     }
 
-    let currentTab = 'html';
-    let otreeStyle = 'basic';
-
     function updateSnippet() {
-      let html;
-      if (currentTab === 'otree') {
-        html = otreeStyle === 'live' ? renderOTreeLiveSnippet(cfg) : renderOTreeSnippet(cfg);
-      } else {
-        html = renderSnippet(cfg);
-      }
-      document.getElementById('snippet').innerHTML = html;
+      document.getElementById('snippet').innerHTML = renderOTreeUnifiedSnippet(cfg);
     }
 
     /* ---- Control bindings ---- */
@@ -1564,126 +1352,133 @@
       setTimeout(() => (b.textContent = 'copy'), 1200);
     });
 
-    document.getElementById('tab_html').addEventListener('click', () => {
-      currentTab = 'html';
-      document.getElementById('tab_html').classList.add('on');
-      document.getElementById('tab_otree').classList.remove('on');
-      document.getElementById('downloadIndexBtn').style.display = '';
-      document.getElementById('downloadLiveHtmlBtn').style.display = 'none';
-      document.getElementById('otree-style-toggle').style.display = 'none';
-      updateSnippet();
-    });
 
-    document.getElementById('tab_otree').addEventListener('click', () => {
-      currentTab = 'otree';
-      document.getElementById('tab_otree').classList.add('on');
-      document.getElementById('tab_html').classList.remove('on');
-      document.getElementById('downloadIndexBtn').style.display = 'none';
-      document.getElementById('downloadLiveHtmlBtn').style.display = otreeStyle === 'live' ? '' : 'none';
-      document.getElementById('otree-style-toggle').style.display = 'flex';
-      updateSnippet();
-    });
-
-    document.getElementById('tab_otree_basic').addEventListener('click', () => {
-      otreeStyle = 'basic';
-      document.getElementById('tab_otree_basic').classList.add('on');
-      document.getElementById('tab_otree_live').classList.remove('on');
-      document.getElementById('downloadLiveHtmlBtn').style.display = 'none';
-      updateSnippet();
-    });
-
-    document.getElementById('tab_otree_live').addEventListener('click', () => {
-      otreeStyle = 'live';
-      document.getElementById('tab_otree_live').classList.add('on');
-      document.getElementById('tab_otree_basic').classList.remove('on');
-      document.getElementById('downloadLiveHtmlBtn').style.display = '';
-      updateSnippet();
-    });
-
-    /* ---- Download index.html ---- */
-    // Decodes the syntax-highlighted renderSnippet() output into plain HTML text.
-    // Uses a temporary element — innerText strips span tags and decodes HTML entities
-    // in one pass, which is the same technique the copy button uses on #snippet.
-    function getSnippetPlainText(c) {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = renderSnippet(c);
-      // textContent: entities decoded by the HTML parser, span tags stripped,
-      // newlines from text nodes preserved — no dependency on rendering/layout.
-      return tmp.textContent;
-    }
-
-    function generateIndexHtml(c) {
-      const rawSnippet = getSnippetPlainText(c);
-      // Strip the leading "paste into any HTML page" comment so it reads cleanly
-      // as a standalone file rather than a paste fragment.
-      const body = rawSnippet.replace(/^<!--[^]*?-->\n+/, '');
-      // Escape sessionId for use in <title> (it ends up as innerHTML, not an attribute).
-      const sidLabel = c.sessionId
-        ? ' — ' + c.sessionId.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        : '';
-      return (
-        '<!DOCTYPE html>\n' +
-        '<html lang="en">\n' +
-        '<head>\n' +
-        '  <meta charset="UTF-8">\n' +
-        '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
-        '  <title>Invoice Matching Task' + sidLabel + '</title>\n' +
-        '</head>\n' +
-        '<body>\n\n' +
-        body +
-        '\n</body>\n' +
-        '</html>'
-      );
-    }
-
-    document.getElementById('downloadIndexBtn').addEventListener('click', () => {
-      const html = generateIndexHtml(cfg);
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'index.html';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 0);
-    });
-
-    /* ---- Download InvoiceTaskLive.html (Live oTree style) ---- */
-    // Mirrors examples/otree/demo-app/invoice_task_live/InvoiceTaskLive.html.
-    // Keep this in sync if that file changes.
-    const INVOICE_TASK_LIVE_TEMPLATE = `{{ block title }}
-    Invoice Matching Task (Live)
+    /* ---- Download InvoiceTaskUnified.html (Live oTree style) ---- */
+    // Mirrors examples/otree/demo-app/invoice_task_unified/InvoiceTaskUnified.html.
+    // Keep this in sync if that file changes. Its own inline scripts avoid
+    // backtick template literals on purpose (same reason each closing script
+    // tag below is written as <\/script>) — a nested interpolation would
+    // otherwise be evaluated by this file's own template literal instead of
+    // staying literal text. Note: the closing tag must stay escaped even in
+    // comments like this one — the HTML parser scans raw script-tag text for
+    // that exact sequence regardless of JS syntax, so writing it out plainly
+    // anywhere in this block, including in a comment, would end the
+    // surrounding <script> tag early.
+    const INVOICE_TASK_UNIFIED_TEMPLATE = `{{ block title }}
+    Invoice Matching Task (Unified Difficulty Control)
 {{ endblock }}
 
 {{ block content }}
 
-<invoice-matching-task
-    task-duration="120"
-    start-difficulty="1"
-    max-submissions="20"
-    log-level="basic">
-</invoice-matching-task>
+{{ if is_operator }}
 
-<div id="live-metrics" style="max-width: 320px; margin-top: 8px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
-    <strong>Live metrics</strong>
-    <table style="width: 100%; margin-top: 6px;">
-        <tr><td>Rounds submitted</td><td style="text-align:right"><span id="m-num-rounds">0</span></td></tr>
-        <tr><td>Correct</td><td style="text-align:right"><span id="m-num-correct">0</span></td></tr>
-        <tr><td>Accuracy</td><td style="text-align:right"><span id="m-accuracy">–</span></td></tr>
-        <tr><td>Mean reaction time</td><td style="text-align:right"><span id="m-mean-rt">–</span></td></tr>
-        <tr><td>Median reaction time</td><td style="text-align:right"><span id="m-median-rt">–</span></td></tr>
-        <tr><td>Best streak</td><td style="text-align:right"><span id="m-best-streak">0</span></td></tr>
-        <tr><td>Max difficulty reached</td><td style="text-align:right"><span id="m-max-difficulty">–</span></td></tr>
-    </table>
+<!--
+  Operator page. Sits in the same oTree Group as the participant
+  (PLAYERS_PER_GROUP = 2) and reaches them via live_method group-push
+  (yield {other_player.id_in_group: ...}).
+
+  What this page shows is decided at runtime by the participant's
+  taskStarted.effectiveConfig.adaptiveDifficulty.
+-->
+<div id="operator-panel" style="max-width: 420px;">
+    <h3>Invoice Matching Task — operator view</h3>
+    <p id="waiting-placeholder">Waiting for participant to start…</p>
+
+    <div id="metrics-panel" style="display:none; margin-top: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+        <strong>Live metrics</strong>
+        <table style="width: 100%; margin-top: 6px;">
+            <tr><td>Rounds submitted</td><td style="text-align:right"><span id="m-num-rounds">0</span></td></tr>
+            <tr><td>Correct</td><td style="text-align:right"><span id="m-num-correct">0</span></td></tr>
+            <tr><td>Accuracy</td><td style="text-align:right"><span id="m-accuracy">–</span></td></tr>
+            <tr><td>Mean reaction time</td><td style="text-align:right"><span id="m-mean-rt">–</span></td></tr>
+            <tr><td>Median reaction time</td><td style="text-align:right"><span id="m-median-rt">–</span></td></tr>
+            <tr><td>Best streak</td><td style="text-align:right"><span id="m-best-streak">0</span></td></tr>
+            <tr><td>Max difficulty reached</td><td style="text-align:right"><span id="m-max-difficulty">–</span></td></tr>
+        </table>
+    </div>
+
+    <div id="adaptive-explainer" style="display:none; margin-top: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; color: #666;">
+        The built-in adaptive algorithm is controlling difficulty — no operator action available.
+    </div>
+
+    <div id="control-panel" style="display:none; margin-top: 12px;">
+        <h3>Difficulty control</h3>
+        <p id="mode-indicator" style="font-weight: bold;">Loading…</p>
+        <p style="color: #666; font-size: 0.9em;">
+            Clicking any level below takes over control from the algorithm —
+            permanently for this run. There is no "return to algorithm" button.
+        </p>
+        <div id="level-buttons"></div>
+        <div id="status-panel" style="margin-top: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+            <strong>Live status</strong>
+            <table style="width: 100%; margin-top: 6px;">
+                <tr><td>Round</td><td style="text-align:right"><span id="s-round">–</span></td></tr>
+                <tr><td>Current difficulty</td><td style="text-align:right"><span id="s-difficulty">–</span></td></tr>
+                <tr><td>Last submission</td><td style="text-align:right"><span id="s-correct">–</span></td></tr>
+            </table>
+        </div>
+        <strong style="display: block; margin-top: 12px;">Decision log</strong>
+        <ul id="decision-log" style="margin: 6px 0 0; padding-left: 18px;"></ul>
+    </div>
 </div>
 
 <div style="display:none">{{ next_button }}</div>
 
-<script src="{{ static 'invoice_task_live/invoice-matching-task.js' }}"><\/script>
 <script>
   window.addEventListener('load', () => {
-    const task = document.querySelector('invoice-matching-task');
-    let started = false;
-    let pendingEvents = [];
+    const waitingPlaceholder = document.querySelector('#waiting-placeholder');
+    const metricsPanel = document.querySelector('#metrics-panel');
+    const adaptiveExplainer = document.querySelector('#adaptive-explainer');
+    const controlPanel = document.querySelector('#control-panel');
+    const modeIndicator = document.querySelector('#mode-indicator');
+    const buttonsDiv = document.querySelector('#level-buttons');
+    const decisionLog = document.querySelector('#decision-log');
+    const sRound = document.querySelector('#s-round');
+    const sDifficulty = document.querySelector('#s-difficulty');
+    const sCorrect = document.querySelector('#s-correct');
+
+    let modeRevealed = false;
+
+    // Runs exactly once, the first time the server confirms the real
+    // adaptiveDifficulty (either via the participant's taskStarted push, or
+    // an init sync after the participant has already started). Locked in
+    // permanently afterwards — adaptiveDifficulty is an init-only component
+    // option, so it cannot change mid-run.
+    function revealMode(adaptive) {
+      if (modeRevealed) return;
+      modeRevealed = true;
+      waitingPlaceholder.style.display = 'none';
+      metricsPanel.style.display = '';
+      adaptiveExplainer.style.display = adaptive ? '' : 'none';
+      controlPanel.style.display = adaptive ? 'none' : '';
+    }
+
+    // Renders exactly the configured [min, max] range — showing more buttons
+    // than the task actually supports would let the operator click a level
+    // that gets silently rejected server-side with no feedback.
+    function renderLevelButtons(min, max) {
+      buttonsDiv.innerHTML = '';
+      for (let lvl = min; lvl <= max; lvl++) {
+        const btn = document.createElement('button');
+        btn.type = 'button'; // otherwise it defaults to type="submit" inside oTree's page <form> and advances the page
+        btn.textContent = 'Set level ' + lvl;
+        btn.style.margin = '2px';
+        btn.addEventListener('click', () => liveSend({ setLevel: lvl }));
+        buttonsDiv.appendChild(btn);
+      }
+    }
+
+    function renderControlMode(mode) {
+      modeIndicator.textContent = mode === 'manual'
+        ? 'Manual — you are in control'
+        : 'Automatic — algorithm is in control';
+    }
+
+    function logDecision(text) {
+      const li = document.createElement('li');
+      li.textContent = text;
+      decisionLog.appendChild(li);
+    }
 
     function updateMetricsPanel(m) {
       document.querySelector('#m-num-rounds').textContent = m.numRounds;
@@ -1700,8 +1495,61 @@
 
     window.liveRecv = function (response) {
       if (!response) return;
-      if (response.metrics) {
-        updateMetricsPanel(response.metrics);
+      if (typeof response.adaptiveDifficulty === 'boolean') {
+        revealMode(response.adaptiveDifficulty);
+      }
+      if (response.controlMode) renderControlMode(response.controlMode);
+      if (typeof response.minDifficulty === 'number' && typeof response.maxDifficulty === 'number') {
+        renderLevelButtons(response.minDifficulty, response.maxDifficulty);
+      }
+      if (response.metrics) updateMetricsPanel(response.metrics);
+      if (typeof response.ack === 'number') logDecision('You set difficulty to ' + response.ack);
+      if (response.detail) {
+        sRound.textContent = response.detail.roundIndex;
+        sDifficulty.textContent = response.detail.currentDifficulty;
+        sCorrect.textContent = response.detail.isCorrect ? 'Correct' : 'Wrong';
+      }
+      if (response.lastChange) {
+        logDecision('Algorithm set difficulty to ' + response.lastChange.level);
+      }
+      if (response.done) {
+        document.querySelector('.otree-btn-next')?.click();
+      }
+    };
+
+    liveSocket.addEventListener('open', () => liveSend({ init: true }));
+  });
+<\/script>
+
+{{ else }}
+
+<!--
+  Adaptive difficulty is whatever you configure on this element; the operator
+  page (above) adapts to it at runtime. Set adaptive-difficulty="false" if you
+  want the operator's difficulty-control panel to have any effect:
+  setDifficulty() is only honoured while the built-in adaptive algorithm is
+  off.
+-->
+<invoice-matching-task
+    task-duration="120"
+    start-difficulty="1"
+    max-submissions="20"
+    log-level="basic">
+</invoice-matching-task>
+
+<div style="display:none">{{ next_button }}</div>
+
+<script src="{{ static 'invoice_task_unified/invoice-matching-task.js' }}"><\/script>
+<script>
+  window.addEventListener('load', () => {
+    const task = document.querySelector('invoice-matching-task');
+    let started = false;
+    let pendingEvents = [];
+
+    window.liveRecv = function (response) {
+      if (!response) return;
+      if (typeof response.setDifficulty === 'number') {
+        task.setDifficulty(response.setDifficulty);
       }
       if (response.done) {
         document.querySelector('.otree-btn-next')?.click();
@@ -1740,152 +1588,62 @@
   });
 <\/script>
 
+{{ endif }}
+
 {{ endblock }}
 `;
 
-    const DEFAULT_LIVE_ELEMENT = `<invoice-matching-task
+    const DEFAULT_UNIFIED_ELEMENT = `<invoice-matching-task
     task-duration="120"
     start-difficulty="1"
     max-submissions="20"
     log-level="basic">
 </invoice-matching-task>`;
 
-    // Reuses renderOTreeLiveSnippet's plain-text round-trip (see getSnippetPlainText)
-    // then drops its "paste this into..." comment, which doesn't apply once the
-    // element is already substituted into the real file.
-    function getOTreeLiveElementText(c) {
+    // innerHTML/textContent round-trip strips the syntax-highlighting spans and
+    // decodes entities, then drops the "paste this into..." comment, which
+    // doesn't apply once the element is already substituted into the real file.
+    function getOTreeUnifiedElementText(c) {
       const tmp = document.createElement('div');
-      tmp.innerHTML = renderOTreeLiveSnippet(c);
+      tmp.innerHTML = renderOTreeUnifiedSnippet(c);
       return tmp.textContent.replace(/^(?:<!--[^]*?-->\n)+\n*/, '').trimEnd();
     }
 
-    function generateInvoiceTaskLiveHtml(c) {
-      const configuredElement = getOTreeLiveElementText(c);
-      // If InvoiceTaskLive.html's default element ever drifts from
-      // DEFAULT_LIVE_ELEMENT, .replace() would silently no-op and ship the
+    function generateInvoiceTaskUnifiedHtml(c) {
+      const configuredElement = getOTreeUnifiedElementText(c);
+      // If InvoiceTaskUnified.html's default element ever drifts from
+      // DEFAULT_UNIFIED_ELEMENT, .replace() would silently no-op and ship the
       // stale default instead of the configured element — fail loudly instead.
-      if (!INVOICE_TASK_LIVE_TEMPLATE.includes(DEFAULT_LIVE_ELEMENT)) {
+      if (!INVOICE_TASK_UNIFIED_TEMPLATE.includes(DEFAULT_UNIFIED_ELEMENT)) {
         throw new Error(
-          'INVOICE_TASK_LIVE_TEMPLATE no longer contains DEFAULT_LIVE_ELEMENT — ' +
-          'update both to match the current invoice_task_live/InvoiceTaskLive.html.'
+          'INVOICE_TASK_UNIFIED_TEMPLATE no longer contains DEFAULT_UNIFIED_ELEMENT — ' +
+          'update both to match the current invoice_task_unified/InvoiceTaskUnified.html.'
         );
       }
-      return INVOICE_TASK_LIVE_TEMPLATE.replace(DEFAULT_LIVE_ELEMENT, configuredElement);
+      return INVOICE_TASK_UNIFIED_TEMPLATE.replace(DEFAULT_UNIFIED_ELEMENT, configuredElement);
     }
 
     document.getElementById('downloadLiveHtmlBtn').addEventListener('click', () => {
+      const filename = 'InvoiceTaskUnified.html';
       let html;
       try {
-        html = generateInvoiceTaskLiveHtml(cfg);
+        html = generateInvoiceTaskUnifiedHtml(cfg);
       } catch (err) {
-        alert('Could not generate InvoiceTaskLive.html: ' + err.message);
+        alert('Could not generate ' + filename + ': ' + err.message);
         return;
       }
       const blob = new Blob([html], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'InvoiceTaskLive.html';
+      a.download = filename;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 0);
     });
 
-    /* ---- Log viewer ---- */
-    function renderLogViewer(events) {
-      const list = document.getElementById('log-viewer-list');
-      const empty = document.getElementById('log-viewer-empty');
-      const count = document.getElementById('log-viewer-count');
-      list.innerHTML = '';
-      if (events.length === 0) {
-        empty.style.display = '';
-        count.textContent = '';
-        return;
-      }
-      empty.style.display = 'none';
-      events.forEach((d) => list.appendChild(createEventRow(d)));
-      count.textContent = events.length + ' event' + (events.length !== 1 ? 's' : '');
-    }
-
-    function parseAndRenderLogViewer(text) {
-      const errorEl = document.getElementById('log-viewer-error');
-      errorEl.textContent = '';
-      errorEl.classList.remove('visible');
-      errorEl.removeAttribute('role');
-
-      const trimmed = text.trim();
-      if (!trimmed) {
-        renderLogViewer([]);
-        return;
-      }
-
-      let parsed;
-      try {
-        parsed = JSON.parse(trimmed);
-      } catch (e) {
-        // Fatal — assertive announcement for screen readers.
-        errorEl.setAttribute('role', 'alert');
-        errorEl.textContent = 'Invalid JSON — ' + e.message;
-        errorEl.classList.add('visible');
-        return;
-      }
-
-      if (!Array.isArray(parsed)) {
-        // Fatal — assertive announcement.
-        errorEl.setAttribute('role', 'alert');
-        errorEl.textContent =
-          'Expected a JSON array (e.g. from the Download JSON button), but got: ' +
-          typeof parsed + '.';
-        errorEl.classList.add('visible');
-        return;
-      }
-
-      // Filter out any non-object entries gracefully; warn if any were skipped.
-      const events = parsed.filter((d) => d && typeof d === 'object' && !Array.isArray(d));
-      if (events.length < parsed.length) {
-        const skipped = parsed.length - events.length;
-        // Non-fatal notice — polite announcement so it doesn't interrupt reading.
-        errorEl.setAttribute('role', 'status');
-        errorEl.textContent =
-          'Note: ' + skipped + ' non-object item' + (skipped !== 1 ? 's' : '') +
-          ' in the array were skipped.';
-        errorEl.classList.add('visible');
-      }
-
-      renderLogViewer(events);
-    }
-
-    document.getElementById('log-viewer-input').addEventListener('input', (e) => {
-      parseAndRenderLogViewer(e.target.value);
-    });
-
-    document.getElementById('log-viewer-file').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const text = ev.target.result;
-        document.getElementById('log-viewer-input').value = text;
-        parseAndRenderLogViewer(text);
-      };
-      reader.onerror = () => {
-        const errorEl = document.getElementById('log-viewer-error');
-        errorEl.setAttribute('role', 'alert');
-        errorEl.textContent = 'Could not read the file.';
-        errorEl.classList.add('visible');
-      };
-      reader.readAsText(file);
-      // Reset so the same file can be re-selected.
-      e.target.value = '';
-    });
-
-    document.getElementById('log-viewer-clear').addEventListener('click', () => {
-      document.getElementById('log-viewer-input').value = '';
-      parseAndRenderLogViewer('');
-    });
-
     /* ---- Top-level tab switching ---- */
     function activateTopTab(name) {
-      ['configure', 'gencode', 'logviewer'].forEach(function (id) {
+      ['configure', 'gencode'].forEach(function (id) {
         const tab = document.getElementById('toptab-' + id);
         const panel = document.getElementById('panel-' + id);
         const isActive = id === name;
@@ -1896,7 +1654,6 @@
     }
     document.getElementById('toptab-configure').addEventListener('click', () => activateTopTab('configure'));
     document.getElementById('toptab-gencode').addEventListener('click', () => activateTopTab('gencode'));
-    document.getElementById('toptab-logviewer').addEventListener('click', () => activateTopTab('logviewer'));
 
     /* ---- Collapsible config groups ---- */
     document.querySelectorAll('.group > .glabel').forEach(function (btn) {

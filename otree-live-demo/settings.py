@@ -2,10 +2,10 @@ from os import environ
 
 SESSION_CONFIGS = [
     dict(
-        name='invoice_demo_live',
-        display_name='Invoice Matching Demo (Live)',
-        app_sequence=['invoice_task_live'],
-        num_demo_participants=1,
+        name='invoice_demo_unified',
+        display_name='Invoice Matching Demo',
+        app_sequence=['invoice_task_unified'],
+        num_demo_participants=2,
     ),
 ]
 
@@ -35,4 +35,6 @@ ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD')
 
 DEMO_PAGE_INTRO_HTML = """ """
 
-SECRET_KEY = '4271936850193'
+# Session-signing key. The default is a throwaway suitable for the local demo;
+# set OTREE_SECRET_KEY in the environment for any real deployment.
+SECRET_KEY = environ.get('OTREE_SECRET_KEY', 'invoice-matching-demo-insecure-key')

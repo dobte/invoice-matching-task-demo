@@ -1,0 +1,231 @@
+{{ block title }}
+    Invoice Matching Task (Unified Difficulty Control)
+{{ endblock }}
+
+{{ block content }}
+
+{{ if is_operator }}
+
+<!--
+  Operator page. Sits in the same oTree Group as the participant
+  (PLAYERS_PER_GROUP = 2) and reaches them via live_method group-push
+  (yield {other_player.id_in_group: ...}).
+
+  What this page shows is decided at runtime by the participant's
+  taskStarted.effectiveConfig.adaptiveDifficulty.
+-->
+<div id="operator-panel" style="max-width: 420px;">
+    <h3>Invoice Matching Task — operator view</h3>
+    <p id="waiting-placeholder">Waiting for participant to start…</p>
+
+    <div id="metrics-panel" style="display:none; margin-top: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+        <strong>Live metrics</strong>
+        <table style="width: 100%; margin-top: 6px;">
+            <tr><td>Rounds submitted</td><td style="text-align:right"><span id="m-num-rounds">0</span></td></tr>
+            <tr><td>Correct</td><td style="text-align:right"><span id="m-num-correct">0</span></td></tr>
+            <tr><td>Accuracy</td><td style="text-align:right"><span id="m-accuracy">–</span></td></tr>
+            <tr><td>Mean reaction time</td><td style="text-align:right"><span id="m-mean-rt">–</span></td></tr>
+            <tr><td>Median reaction time</td><td style="text-align:right"><span id="m-median-rt">–</span></td></tr>
+            <tr><td>Best streak</td><td style="text-align:right"><span id="m-best-streak">0</span></td></tr>
+            <tr><td>Max difficulty reached</td><td style="text-align:right"><span id="m-max-difficulty">–</span></td></tr>
+        </table>
+    </div>
+
+    <div id="adaptive-explainer" style="display:none; margin-top: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; color: #666;">
+        The built-in adaptive algorithm is controlling difficulty — no operator action available.
+    </div>
+
+    <div id="control-panel" style="display:none; margin-top: 12px;">
+        <h3>Difficulty control</h3>
+        <p id="mode-indicator" style="font-weight: bold;">Loading…</p>
+        <p style="color: #666; font-size: 0.9em;">
+            Clicking any level below takes over control from the algorithm —
+            permanently for this run. There is no "return to algorithm" button.
+        </p>
+        <div id="level-buttons"></div>
+        <div id="status-panel" style="margin-top: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+            <strong>Live status</strong>
+            <table style="width: 100%; margin-top: 6px;">
+                <tr><td>Round</td><td style="text-align:right"><span id="s-round">–</span></td></tr>
+                <tr><td>Current difficulty</td><td style="text-align:right"><span id="s-difficulty">–</span></td></tr>
+                <tr><td>Last submission</td><td style="text-align:right"><span id="s-correct">–</span></td></tr>
+            </table>
+        </div>
+        <strong style="display: block; margin-top: 12px;">Decision log</strong>
+        <ul id="decision-log" style="margin: 6px 0 0; padding-left: 18px;"></ul>
+    </div>
+</div>
+
+<div style="display:none">{{ next_button }}</div>
+
+<script>
+  window.addEventListener('load', () => {
+    const waitingPlaceholder = document.querySelector('#waiting-placeholder');
+    const metricsPanel = document.querySelector('#metrics-panel');
+    const adaptiveExplainer = document.querySelector('#adaptive-explainer');
+    const controlPanel = document.querySelector('#control-panel');
+    const modeIndicator = document.querySelector('#mode-indicator');
+    const buttonsDiv = document.querySelector('#level-buttons');
+    const decisionLog = document.querySelector('#decision-log');
+    const sRound = document.querySelector('#s-round');
+    const sDifficulty = document.querySelector('#s-difficulty');
+    const sCorrect = document.querySelector('#s-correct');
+
+    let modeRevealed = false;
+
+    // Runs exactly once, the first time the server confirms the real
+    // adaptiveDifficulty (either via the participant's taskStarted push, or
+    // an init sync after the participant has already started). Locked in
+    // permanently afterwards — adaptiveDifficulty is an init-only component
+    // option, so it cannot change mid-run.
+    function revealMode(adaptive) {
+      if (modeRevealed) return;
+      modeRevealed = true;
+      waitingPlaceholder.style.display = 'none';
+      metricsPanel.style.display = '';
+      adaptiveExplainer.style.display = adaptive ? '' : 'none';
+      controlPanel.style.display = adaptive ? 'none' : '';
+    }
+
+    // Renders exactly the configured [min, max] range — showing more buttons
+    // than the task actually supports would let the operator click a level
+    // that gets silently rejected server-side with no feedback.
+    function renderLevelButtons(min, max) {
+      buttonsDiv.innerHTML = '';
+      for (let lvl = min; lvl <= max; lvl++) {
+        const btn = document.createElement('button');
+        btn.type = 'button'; // otherwise it defaults to type="submit" inside oTree's page <form> and advances the page
+        btn.textContent = 'Set level ' + lvl;
+        btn.style.margin = '2px';
+        btn.addEventListener('click', () => liveSend({ setLevel: lvl }));
+        buttonsDiv.appendChild(btn);
+      }
+    }
+
+    function renderControlMode(mode) {
+      modeIndicator.textContent = mode === 'manual'
+        ? 'Manual — you are in control'
+        : 'Automatic — algorithm is in control';
+    }
+
+    function logDecision(text) {
+      const li = document.createElement('li');
+      li.textContent = text;
+      decisionLog.appendChild(li);
+    }
+
+    function updateMetricsPanel(m) {
+      document.querySelector('#m-num-rounds').textContent = m.numRounds;
+      document.querySelector('#m-num-correct').textContent = m.numCorrect;
+      document.querySelector('#m-accuracy').textContent =
+        m.numRounds > 0 ? Math.round(m.accuracy * 100) + '%' : '–';
+      document.querySelector('#m-mean-rt').textContent =
+        m.meanReactionTimeMs != null ? Math.round(m.meanReactionTimeMs) + ' ms' : '–';
+      document.querySelector('#m-median-rt').textContent =
+        m.medianReactionTimeMs != null ? Math.round(m.medianReactionTimeMs) + ' ms' : '–';
+      document.querySelector('#m-best-streak').textContent = m.bestStreak;
+      document.querySelector('#m-max-difficulty').textContent = m.maxDifficultyReached;
+    }
+
+    window.liveRecv = function (response) {
+      if (!response) return;
+      if (typeof response.adaptiveDifficulty === 'boolean') {
+        revealMode(response.adaptiveDifficulty);
+      }
+      if (response.controlMode) renderControlMode(response.controlMode);
+      if (typeof response.minDifficulty === 'number' && typeof response.maxDifficulty === 'number') {
+        renderLevelButtons(response.minDifficulty, response.maxDifficulty);
+      }
+      if (response.metrics) updateMetricsPanel(response.metrics);
+      if (typeof response.ack === 'number') logDecision('You set difficulty to ' + response.ack);
+      if (response.detail) {
+        sRound.textContent = response.detail.roundIndex;
+        sDifficulty.textContent = response.detail.currentDifficulty;
+        sCorrect.textContent = response.detail.isCorrect ? 'Correct' : 'Wrong';
+      }
+      if (response.lastChange) {
+        logDecision('Algorithm set difficulty to ' + response.lastChange.level);
+      }
+      if (response.done) {
+        document.querySelector('.otree-btn-next')?.click();
+      }
+    };
+
+    liveSocket.addEventListener('open', () => liveSend({ init: true }));
+  });
+</script>
+
+{{ else }}
+
+<!--
+  Adaptive difficulty is whatever you configure on this element; the operator
+  page (above) adapts to it at runtime. Set adaptive-difficulty="false" if you
+  want the operator's difficulty-control panel to have any effect:
+  setDifficulty() is only honoured while the built-in adaptive algorithm is
+  off.
+-->
+<invoice-matching-task
+  task-duration="60"
+  start-difficulty="1"
+  max-difficulty="3"
+  adaptive-difficulty="false"
+  number-of-options="8"
+  invoice-order="random"
+  max-submissions="20"
+  show-feedback="true"
+  show-timer="true"></invoice-matching-task>
+
+<div style="display:none">{{ next_button }}</div>
+
+<script src="{{ static 'invoice_task_unified/invoice-matching-task.js' }}"></script>
+<script>
+  window.addEventListener('load', () => {
+    const task = document.querySelector('invoice-matching-task');
+    let started = false;
+    let pendingEvents = [];
+
+    window.liveRecv = function (response) {
+      if (!response) return;
+      if (typeof response.setDifficulty === 'number') {
+        task.setDifficulty(response.setDifficulty);
+      }
+      if (response.done) {
+        document.querySelector('.otree-btn-next')?.click();
+      }
+    };
+
+    function flushPendingEvents() {
+      if (liveSocket.readyState !== WebSocket.OPEN) return;
+      while (pendingEvents.length > 0) {
+        liveSend({ event: pendingEvents.shift() });
+      }
+    }
+    liveSocket.addEventListener('open', flushPendingEvents);
+
+    task.addEventListener('invoiceTaskEvent', (event) => {
+      if (event.detail.eventType === 'taskStarted') {
+        started = true;
+      }
+      if (liveSocket.readyState === WebSocket.OPEN) {
+        liveSend({ event: event.detail });
+      } else {
+        pendingEvents.push(event.detail);
+      }
+    });
+
+    function tryAutoStart(attempt) {
+      if (started) return;
+      if (typeof task.start === 'function') {
+        task.start();
+      }
+      if (attempt < 100) {
+        setTimeout(() => tryAutoStart(attempt + 1), 100);
+      }
+    }
+    customElements.whenDefined('invoice-matching-task').then(() => tryAutoStart(0));
+  });
+</script>
+
+{{ endif }}
+
+{{ endblock }}

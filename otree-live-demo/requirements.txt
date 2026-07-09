@@ -1,5 +1,5 @@
-# oTree-may-overwrite-this-file
-# IF YOU MODIFY THIS FILE, remove this comment.
-# otherwise, oTree will automatically overwrite it.
 otree>=5.0.0a21
-psycopg2>=2.8.4
+# psycopg2-binary (prebuilt wheels) instead of psycopg2, so `pip install`
+# needs no C compiler or Postgres headers. Not used by the sqlite dev server;
+# only needed if you deploy against Postgres.
+psycopg2-binary>=2.8.4
